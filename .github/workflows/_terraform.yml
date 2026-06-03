@@ -33,14 +33,16 @@ jobs:
           ARGS=""
           for t in ${{ inputs.targets }}; do ARGS="$ARGS -target=$t"; done
           echo "args=$ARGS" >> "$GITHUB_OUTPUT"
-      - name: Debug
+
+      - name: Terraform FMT Check
+        run: terraform fmt -check -recursive .
+
+      - name: Debug vars
         run: |
-          node -v
-          which terraform
-          ls -l $(which terraform)
-          terraform version
-      - run: terraform fmt -check -recursive .
-      - run: terraform init
+          echo "AWS_REGION=${AWS_REGION}"
+          echo "TF_STATE_S3_BUCKET=${TF_STATE_S3_BUCKET}"
+          echo "TF_State_File_Key=${TF_State_File_Key}"
+          
       - name: Terraform init
         id: init
         run: |
@@ -51,7 +53,8 @@ jobs:
             -backend-config="use_lockfile=true"
             -backend-config="encrypt=true"
 
-      - run: terraform validate
+      - name: Terraform validate
+        run: terraform validate
 
       - name: Plan
         id: plan

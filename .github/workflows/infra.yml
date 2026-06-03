@@ -23,6 +23,7 @@ jobs:
     with:
       action: plan
       environment: prod
+    secrets: inherit
 
   apply:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
@@ -30,3 +31,4 @@ jobs:
     with:
       action: apply
       environment: prod
+    secrets: inherit
