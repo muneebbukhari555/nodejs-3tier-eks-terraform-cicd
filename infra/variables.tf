@@ -69,12 +69,6 @@ variable "vpc_enable_nat_gateway" {
   type        = bool
 }
 
-variable "mgmt_vpc_cidr" {
-  type        = string
-  default     = "10.1.0.0/16"
-  description = "Management VPC CIDR. Must not overlap vpc_cidr."
-}
-
 ##################################################### EKS Variables 
 variable "cluster_version" {
   type    = string
@@ -114,32 +108,19 @@ variable "node_kubernetes_version" {
   default     = null
   description = "Node kubelet version; null = cluster_version"
 }
-variable "eks_public_access" {
-  type        = bool
-  default     = false
-  description = "Expose the EKS API publicly. Keep false for a private cluster."
-}
 # Pin EKS-managed addon versions, e.g. { coredns = "v1.11.1-eksbuild.9" }.
 # Unset names use the most-recent compatible version.
-variable "eks_addon_versions" {
+variable "addon_versions" {
   type    = map(string)
   default = {}
 }
 
-##################################################### Variables for EKS Cluster Admin Access
-variable "bastion_role_arn" {
-  type        = string
-  description = "Bootstrap output: bastion instance role ARN"
+variable "cluster_admin_principal_arns" {
+  type = list(string)
 }
-variable "infra_runner_role_arn" {
-  type        = string
-  description = "Bootstrap output: infra runner fleet instance role ARN"
+variable "api_allowed_cidrs" {
+  type = list(string)
 }
-variable "app_runner_role_arn" {
-  type        = string
-  description = "Bootstrap output: app runner fleet instance role ARN"
-}
-
 ##################################################### ECR Repositories Variables
 variable "ecr_repositories" {
   type        = list(string)

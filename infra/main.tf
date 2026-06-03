@@ -13,31 +13,27 @@ module "network" {
 }
 
 module "eks" {
-  source                  = "./terraform/modules/eks"
-  name                    = var.project
-  cluster_version         = var.cluster_version
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  node_instance_types     = var.node_instance_types
-  node_min_size           = var.node_min_size
-  node_max_size           = var.node_max_size
-  node_desired_size       = var.node_desired_size
-  node_ami_type           = var.node_ami_type
-  node_capacity_type      = var.node_capacity_type
-  node_disk_size          = var.node_disk_size
-  addon_versions          = var.eks_addon_versions
-  api_allowed_cidrs       = [var.mgmt_vpc_cidr, module.network.vpc_cidr_block]
-  cluster_admin_principal_arns = [
-    var.bastion_role_arn,
-    var.infra_runner_role_arn,
-    var.app_runner_role_arn,
-  ]
+  source                       = "./terraform/modules/eks"
+  name                         = local.name
+  cluster_version              = var.cluster_version
+  vpc_id                       = module.network.vpc_id
+  private_subnets              = module.network.private_subnets
+  node_instance_types          = var.node_instance_types
+  node_min_size                = var.node_min_size
+  node_max_size                = var.node_max_size
+  node_desired_size            = var.node_desired_size
+  node_ami_type                = var.node_ami_type
+  node_capacity_type           = var.node_capacity_type
+  node_disk_size               = var.node_disk_size
+  addon_versions               = var.addon_versions
+  api_allowed_cidrs            = var.api_allowed_cidrs
+  cluster_admin_principal_arns = var.cluster_admin_principal_arns
 
   tags = local.common_tags
 }
 
 module "ecr" {
-  source = "./terraform/modules/ecr"
+  source       = "./terraform/modules/ecr"
   name         = var.project
   repositories = var.ecr_repositories
   keep_last    = var.ecr_keep_last

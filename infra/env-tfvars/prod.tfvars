@@ -22,18 +22,16 @@ node_ami_type       = "AL2023_x86_64_STANDARD"
 node_capacity_type  = "ON_DEMAND"
 node_disk_size      = 30
 eks_public_access   = false
-eks_addon_versions = {
-  coredns    = "v1.11.1-eksbuild.9"
-  kube-proxy = "v1.29.3-eksbuild.2"
-  vpc-cni    = "v1.18.1-eksbuild.3"
-  aws-ebs-csi-driver = "v1.31.0-eksbuild.1"
+api_allowed_cidrs   = ["10.1.0.0/16", "10.0.0.0/16"]
+addon_versions = {
+  vpc-cni             = "v1.21.1-eksbuild.1"
+  kube-proxy          = "v1.35.3-eksbuild.2"
+  coredns             = "v1.13.2-eksbuild.4"
+  aws-ebs-csi-driver  = "v1.60.1-eksbuild.1"
 }
-
-mgmt_vpc_id           = "vpc-xxxxxxxx"
-mgmt_vpc_cidr         = "10.1.0.0/16"
-bastion_role_arn      = "arn:aws:iam::839792743202:role/node3tier-bastion-role"
-infra_runner_role_arn = "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
-app_runner_role_arn   = "arn:aws:iam::839792743202:role/node3tier-app-runner-role"
+cluster_admin_principal_arns = [
+    "arn:aws:iam::839792743202:user/toptal"
+  ]
 
 # ECR Repositories to Create
 ecr_repositories = [
