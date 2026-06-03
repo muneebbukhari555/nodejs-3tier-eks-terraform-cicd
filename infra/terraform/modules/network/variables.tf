@@ -1,7 +1,7 @@
 # VPC Input Variables
 
 # VPC Name
-variable "vpc_name" {
+variable "name" {
   description = "VPC Name"
   type        = string
   default     = "myvpc"

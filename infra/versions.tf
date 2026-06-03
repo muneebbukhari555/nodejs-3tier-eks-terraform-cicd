@@ -7,13 +7,13 @@ terraform {
       version = "~> 6.47.0"
     }
   }
-  backend "s3" {
-    bucket = "prod-state-bucket-demov55"
-    key    = "prod/terraform.tfstate"
-    region = "us-east-2"
-    use_lockfile = true
-    encrypt      = true
-  }
+  # backend "s3" {
+  #   bucket       = "node3tier-tf-state-839792743202"
+  #   key          = "prod/terraform.tfstate"
+  #   region       = "us-east-2"
+  #   use_lockfile = true
+  #   encrypt      = true
+  # }
 }
 # Provider Block
 provider "aws" {

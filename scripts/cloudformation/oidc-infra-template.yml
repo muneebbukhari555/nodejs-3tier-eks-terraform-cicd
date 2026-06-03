@@ -9,11 +9,7 @@ Parameters:
     Description: S3 Bucket for terraform remote state storage
     Default: "demo-state-bucket"
     Type: String
-  DynamoTableName:
-    Description: DynamoDB Table for terraform remote state locking purpose
-    Default: "demo-table"
-    Type: String
-
+    
 Resources:
   Role:
     Type: AWS::IAM::Role
@@ -51,21 +47,6 @@ Resources:
       BucketName: !Ref BucketName
       VersioningConfiguration:
         Status: Enabled
-
-  # DynamoDB Table for terraform remote state locking purpose
-  DynamoDBTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Ref DynamoTableName
-      AttributeDefinitions:
-        - AttributeName: LockID
-          AttributeType: S
-      KeySchema:
-        - AttributeName: LockID
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
 
 Outputs:
   Role:
