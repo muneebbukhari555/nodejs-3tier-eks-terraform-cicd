@@ -26,10 +26,7 @@ jobs:
         working-directory: infra
     steps:
       - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.15.5"
-
+      
       - name: Build -target args
         id: tgt
         run: |
