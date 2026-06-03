@@ -36,7 +36,12 @@ jobs:
           ARGS=""
           for t in ${{ inputs.targets }}; do ARGS="$ARGS -target=$t"; done
           echo "args=$ARGS" >> "$GITHUB_OUTPUT"
-
+      - name: Debug
+        run: |
+          node -v
+          which terraform
+          ls -l $(which terraform)
+          terraform version
       - run: terraform fmt -check -recursive .
       - run: terraform init
       - name: Terraform init
