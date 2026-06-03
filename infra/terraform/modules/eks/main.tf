@@ -5,7 +5,7 @@ module "eks" {
   name               = "${var.name}-eks"
   kubernetes_version = var.cluster_version
 
-  endpoint_private_access      = var.endpoint_private_access
+  endpoint_private_access = var.endpoint_private_access
 
   enable_cluster_creator_admin_permissions = false
   security_group_additional_rules = length(var.api_allowed_cidrs) > 0 ? {
@@ -37,14 +37,14 @@ module "eks" {
   addons = {
     vpc-cni = {
       before_compute = true
-      addon_version = lookup(var.addon_versions, "vpc-cni", null)
-      most_recent   = lookup(var.addon_versions, "vpc-cni", null) == null
+      addon_version  = lookup(var.addon_versions, "vpc-cni", null)
+      most_recent    = lookup(var.addon_versions, "vpc-cni", null) == null
     }
 
     kube-proxy = {
       before_compute = true
-      addon_version = lookup(var.addon_versions, "kube-proxy", null)
-      most_recent   = lookup(var.addon_versions, "kube-proxy", null) == null
+      addon_version  = lookup(var.addon_versions, "kube-proxy", null)
+      most_recent    = lookup(var.addon_versions, "kube-proxy", null) == null
     }
 
     coredns = {
@@ -52,7 +52,7 @@ module "eks" {
       most_recent   = lookup(var.addon_versions, "coredns", null) == null
     }
   }
-  
+
   eks_managed_node_groups = {
     default = {
       ami_type           = var.node_ami_type

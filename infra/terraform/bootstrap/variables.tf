@@ -34,11 +34,35 @@ variable "runner_image" {
   default     = "ghcr.io/actions/actions-runner:latest"
   description = "Runner container image (bundle terraform/kubectl/helm/docker/aws)"
 }
-variable "infra_desired" {
+variable "infra_runner_type" {
+  type    = string
+  default = "t3.medium"
+}
+variable "infra_runner_min" {
   type    = number
   default = 1
 }
-variable "app_desired" {
+variable "infra_runner_max" {
+  type    = number
+  default = 3
+}
+variable "infra_runner_desired" {
+  type    = number
+  default = 1
+}
+variable "app_runner_type" {
+  type    = string
+  default = "t3.medium"
+}
+variable "app_runner_min" {
+  type    = number
+  default = 1
+}
+variable "app_runner_max" {
+  type    = number
+  default = 3
+}
+variable "app_runner_desired" {
   type    = number
   default = 1
 }

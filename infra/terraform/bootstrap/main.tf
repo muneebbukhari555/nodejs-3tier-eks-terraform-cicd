@@ -93,9 +93,10 @@ module "runner_infra" {
   managed_policy_arns    = [var.infra_policy_arn]
   inline_policy_json     = data.aws_iam_policy_document.infra_state.json
   create_inline_policy   = true
-  min_size               = 0
-  max_size               = 3
-  desired_capacity       = var.infra_desired
+  instance_type          = var.infra_runner_type
+  min_size               = var.infra_runner_min
+  max_size               = var.infra_runner_max
+  desired_capacity       = var.infra_runner_desired
   tags                   = var.tags
 }
 
@@ -141,8 +142,9 @@ module "runner_app" {
   runner_image           = var.runner_image
   inline_policy_json     = data.aws_iam_policy_document.app_perms.json
   create_inline_policy   = true
-  min_size               = 0
-  max_size               = 4
-  desired_capacity       = var.app_desired
+  instance_type          = var.app_runner_type
+  min_size               = var.app_runner_min
+  max_size               = var.app_runner_max
+  desired_capacity       = var.app_runner_desired
   tags                   = var.tags
 }

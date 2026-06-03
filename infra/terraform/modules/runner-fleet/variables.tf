@@ -29,8 +29,7 @@ variable "runner_image" {
 }
 
 variable "instance_type" {
-  type    = string
-  default = "c7i-flex.large"
+  type = string
 }
 variable "min_size" {
   type    = number

@@ -1,15 +1,15 @@
-variable "name" { 
-  type = string 
-  }
-variable "cluster_version" { 
-  type = string 
+variable "name" {
+  type = string
 }
-variable "vpc_id" { 
-  type = string 
-  }
-variable "private_subnets" { 
-  type = list(string) 
-  }
+variable "cluster_version" {
+  type = string
+}
+variable "vpc_id" {
+  type = string
+}
+variable "private_subnets" {
+  type = list(string)
+}
 variable "node_instance_types" {
   type    = list(string)
   default = ["t3.medium"]

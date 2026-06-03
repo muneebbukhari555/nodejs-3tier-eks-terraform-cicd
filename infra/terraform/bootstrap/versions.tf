@@ -5,12 +5,12 @@ terraform {
   }
 }
 
-# terraform {
-#   backend "s3" {
-#     bucket       = "node3tier-tf-state-<ACCOUNT_ID>"
-#     key          = "bootstrap/terraform.tfstate"
-#     region       = "us-east-2"
-#     encrypt      = true
-#     use_lockfile = true
-#   }
-# }
+terraform {
+  backend "s3" {
+    bucket       = "node3tier-tf-state-839792743202"
+    key          = "bootstrap/terraform.tfstate"
+    region       = "us-east-2"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
