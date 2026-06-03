@@ -1,0 +1,32 @@
+#!/bin/bash
+set -euo pipefail
+
+# base tooling: docker (to run the runner container) + aws cli
+dnf install -y docker awscli || dnf install -y docker
+systemctl enable --now docker
+
+# the SSM SecureString holds a PAT (repo admin) / GitHub App token. The
+
+GH_TOKEN="$(aws ssm get-parameter --name "${token_param}" --with-decryption \
+  --region "${region}" --query Parameter.Value --output text)"
+
+# --- if the runner image is in ECR, authenticate before pulling ---
+if echo "${runner_image}" | grep -q '\.dkr\.ecr\.'; then
+  ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+  aws ecr get-login-password --region "${region}" \
+    | docker login --username AWS --password-stdin \
+      "$ACCOUNT_ID.dkr.ecr.${region}.amazonaws.com"
+fi
+
+docker run --rm \
+  -e RUNNER_NAME="$(hostname)" \
+  -e RUNNER_SCOPE="repo" \
+  -e REPO_URL="${github_url}" \
+  -e LABELS="${runner_labels}" \
+  -e EPHEMERAL="1" \
+  -e ACCESS_TOKEN="$GH_TOKEN" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  "${runner_image}"
+
+# After the single job the ephemeral runner exits; the ASG replaces the instance, so no job state persists.
+shutdown -h now
