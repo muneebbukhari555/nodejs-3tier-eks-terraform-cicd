@@ -36,12 +36,6 @@ jobs:
 
       - name: Terraform FMT Check
         run: terraform fmt -check -recursive .
-
-      - name: Debug vars
-        run: |
-          echo "AWS_REGION=${AWS_REGION}"
-          echo "TF_STATE_S3_BUCKET=${TF_STATE_S3_BUCKET}"
-          echo "TF_State_File_Key=${TF_State_File_Key}"
           
       - name: Terraform init
         id: init
@@ -49,8 +43,8 @@ jobs:
           terraform init \
             -backend-config="region=${{env.AWS_REGION}}" \
             -backend-config="bucket=${{env.TF_STATE_S3_BUCKET}}" \
-            -backend-config="key=${{env.TF_State_File_Key}}"
-            -backend-config="use_lockfile=true"
+            -backend-config="key=${{env.TF_State_File_Key}}" \
+            -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
       - name: Terraform validate
