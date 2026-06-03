@@ -1,0 +1,32 @@
+# Single-root infra pipeline on the `infra` self-hosted runner (mgmt VPC).
+# The one-time bootstrap (state bucket + mgmt VPC + runner fleets) is run locally
+name: infra (terraform)
+on:
+  pull_request:
+    paths: ["infra/**", ".github/workflows/infra.yml", ".github/workflows/_terraform.yml"]
+  push:
+    branches: [main]
+    paths: ["infra/**", ".github/workflows/infra.yml", ".github/workflows/_terraform.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      action: plan
+      environment: prod
+
+  apply:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      action: apply
+      environment: prod

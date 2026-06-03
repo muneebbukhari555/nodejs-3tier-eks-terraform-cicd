@@ -62,7 +62,7 @@ Silicon Macs, which are arm64):
 aws ecr get-login-password --region us-east-2 \
   | docker login --username AWS --password-stdin "$REG"
 
-docker buildx build --platform linux/amd64 -t "$REPO:latest" --push ./runner
+docker buildx build --platform linux/amd64 -t "${REPO}:latest" --push ./runner
 ```
 
 Verify it's there:
@@ -84,9 +84,6 @@ runner_image = "8397....dkr.ecr.us-east-2.amazonaws.com/node3tier/runner:latest"
 ```bash
 terraform apply        # in infra/terraform/bootstrap
 ```
-
-> If `runner_image` was left at the public default, this is the switch to your
-> custom image. If you already set it to the ECR URL, you've done this — skip.
 
 ---
 

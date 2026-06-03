@@ -30,7 +30,10 @@ addon_versions = {
   aws-ebs-csi-driver  = "v1.60.1-eksbuild.1"
 }
 cluster_admin_principal_arns = [
-    "arn:aws:iam::839792743202:user/toptal"
+    "arn:aws:iam::839792743202:user/toptal",
+    "arn:aws:iam::839792743202:role/node3tier-app-runner-role",
+    "arn:aws:iam::839792743202:role/node3tier-bastion-role",
+    "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
   ]
 
 # ECR Repositories to Create
