@@ -121,6 +121,11 @@ variable "cluster_admin_principal_arns" {
 variable "api_allowed_cidrs" {
   type = list(string)
 }
+
+##################################################### EKS Namespaces Variables
+variable "app_namespaces" {
+  type = list(string)
+}
 ##################################################### ECR Repositories Variables
 variable "ecr_repositories" {
   type        = list(string)
@@ -157,4 +162,55 @@ variable "cluster_autoscaler_chart_version" {
 }
 variable "metrics_server_chart_version" {
   type = string
+}
+
+##################################################### RDS Variables
+variable "db_name" {
+  type    = string
+  default = "appdb"
+}
+variable "db_username" {
+  type    = string
+  default = "appuser"
+}
+variable "db_instance_class" {
+  type    = string
+  default = "db.t3.micro"
+}
+variable "db_engine_version" {
+  type    = string
+  default = "15"
+}
+variable "db_allocated_storage" {
+  type    = number
+  default = 20
+}
+variable "db_max_allocated_storage" {
+  type        = number
+  default     = 0
+  description = "Autoscaling ceiling (GB); 0 = 3x allocated"
+}
+variable "db_storage_type" {
+  type    = string
+  default = "gp3"
+}
+variable "db_multi_az" {
+  type    = bool
+  default = true
+}
+variable "db_backup_retention_days" {
+  type    = number
+  default = 7
+}
+variable "db_performance_insights_enabled" {
+  type    = bool
+  default = true
+}
+variable "db_deletion_protection" {
+  type    = bool
+  default = false
+}
+variable "db_skip_final_snapshot" {
+  type    = bool
+  default = true
 }

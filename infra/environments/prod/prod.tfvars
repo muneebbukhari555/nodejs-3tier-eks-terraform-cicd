@@ -40,6 +40,11 @@ cluster_admin_principal_arns = [
   "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
 ]
 
+##################################################### EKS Namespaces to Create
+app_namespaces = [
+  "app"
+]
+
 ##################################################### ECR Repositories to Create
 ecr_repositories = [
   "web",
@@ -51,3 +56,17 @@ ecr_keep_last = 30
 lb_controller_chart_version      = "3.3.0"
 cluster_autoscaler_chart_version = "9.56.0"
 metrics_server_chart_version     = "3.13.0"
+
+##################################################### RDS Database Variables
+db_name                         = "appdb"
+db_username                     = "appuser"
+db_instance_class               = "db.t3.micro"
+db_engine_version               = "18.1"
+db_allocated_storage            = 20
+db_max_allocated_storage        = 0 # 0 = 3x allocated
+db_storage_type                 = "gp3"
+db_multi_az                     = true
+db_backup_retention_days        = 7
+db_performance_insights_enabled = true
+db_deletion_protection          = false # set true for real prod
+db_skip_final_snapshot          = true  # set false for real prod
