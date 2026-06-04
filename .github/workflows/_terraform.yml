@@ -37,7 +37,12 @@ jobs:
 
       - name: Terraform FMT Check
         run: terraform fmt -check -recursive .
-          
+      
+      - name: Debug Backend
+        run: |
+          echo "AWS_REGION=${AWS_REGION}"
+          echo "TF_STATE_S3_BUCKET=${TF_STATE_S3_BUCKET}"
+          echo "TF_STATE_FILE_KEY=${TF_STATE_FILE_KEY}"
       - name: Terraform init
         run: |
           terraform init \
