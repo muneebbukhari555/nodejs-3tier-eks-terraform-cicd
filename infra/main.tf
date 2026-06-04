@@ -1,3 +1,4 @@
+# Workload VPC and Subnets
 module "network" {
   source                                 = "./terraform/modules/network"
   name                                   = local.name
@@ -12,6 +13,7 @@ module "network" {
   eks_cluster_name                       = "${local.name}-eks"
 }
 
+# EKS Cluster
 module "eks" {
   source                       = "./terraform/modules/eks"
   name                         = local.name
@@ -32,10 +34,24 @@ module "eks" {
   tags = local.common_tags
 }
 
+# ECR Repositories
 module "ecr" {
   source       = "./terraform/modules/ecr"
-  name         = var.project
+  name         = local.name
   repositories = var.ecr_repositories
   keep_last    = var.ecr_keep_last
   tags         = local.common_tags
+}
+
+# VPC Peering
+module "peering" {
+  source                   = "./terraform/modules/peering"
+  name                     = local.name
+  mgmt_vpc_id              = var.mgmt_vpc_id
+  mgmt_vpc_cidr            = var.mgmt_vpc_cidr
+  mgmt_route_table_ids     = var.mgmt_route_table_ids
+  workload_vpc_id          = module.network.vpc_id
+  workload_vpc_cidr        = module.network.vpc_cidr_block
+  workload_route_table_ids = module.network.route_table_ids
+  tags                     = local.common_tags
 }

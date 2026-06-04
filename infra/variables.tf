@@ -131,3 +131,19 @@ variable "ecr_keep_last" {
   type    = number
   default = 20
 }
+
+
+##################################################### VPC Peering Variables
+variable "mgmt_vpc_id" {
+  type        = string
+  description = "Bootstrap output: management VPC id (for peering)"
+}
+variable "mgmt_vpc_cidr" {
+  type        = string
+  default     = "10.1.0.0/16"
+  description = "Management VPC CIDR. Must not overlap vpc_cidr."
+}
+variable "mgmt_route_table_ids" {
+  type        = list(string)
+  description = "Bootstrap output: mgmt route tables (public+private) for peering"
+}

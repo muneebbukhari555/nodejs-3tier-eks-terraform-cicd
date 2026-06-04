@@ -29,3 +29,10 @@ output "azs" {
   description = "A list of availability zones spefified as argument to this module"
   value       = module.vpc.azs
 }
+# Route tables that need a return route to the mgmt VPC over peering.
+output "route_table_ids" {
+  value = concat(
+    module.vpc.private_route_table_ids,
+    module.vpc.database_route_table_ids,
+  )
+}

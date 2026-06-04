@@ -97,20 +97,47 @@ resource "aws_security_group" "bastion" {
 # ---- IAM role for SSM Session Manager ----
 resource "aws_iam_role" "bastion" {
   name = "${var.name}-bastion-role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
     }]
   })
+
   tags = var.tags
 }
 
+# Existing SSM policy
 resource "aws_iam_role_policy_attachment" "ssm" {
   role       = aws_iam_role.bastion.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# Additional EKS read permissions
+resource "aws_iam_role_policy" "eks_access" {
+  name = "${var.name}-eks-access"
+  role = aws_iam_role.bastion.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "eks:DescribeCluster",
+          "eks:ListClusters",
+          "eks:ListNodegroups",
+          "eks:DescribeNodegroup"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 resource "aws_iam_instance_profile" "bastion" {
@@ -119,17 +146,12 @@ resource "aws_iam_instance_profile" "bastion" {
 }
 
 # ---- AMI + instance ----
-data "aws_ami" "al2" {
-  most_recent = true
-  owners      = ["amazon"]
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
+data "aws_ssm_parameter" "al2023" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 }
 
 resource "aws_instance" "bastion" {
-  ami                    = data.aws_ami.al2.id
+  ami                    = data.aws_ssm_parameter.al2023.value
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.bastion.id]
