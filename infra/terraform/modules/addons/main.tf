@@ -1,0 +1,90 @@
+# Cluster add-ons: AWS LB Controller, Cluster Autoscaler, metrics-server.
+
+module "lb_controller_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 6.6.0"
+
+  role_name                              = "${var.name}-lb-controller"
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+  tags = var.tags
+}
+
+resource "helm_release" "lb_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = var.lb_controller_chart_version
+  set = [
+    { name  = "clusterName",
+      value = var.cluster_name
+    },
+    { name  = "serviceAccount.create",
+      value = "true"
+    },
+    { name  = "serviceAccount.name",
+      value = "aws-load-balancer-controller"
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.lb_controller_irsa.iam_role_arn
+    },
+    { name = "region", value = var.region },
+    { name = "vpcId", value = var.vpc_id },
+  ]
+}
+
+module "cluster_autoscaler_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 6.6.0"
+
+  role_name                        = "${var.name}-cluster-autoscaler"
+  attach_cluster_autoscaler_policy = true
+  cluster_autoscaler_cluster_names = [var.cluster_name]
+
+  oidc_providers = {
+    main = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:cluster-autoscaler"]
+    }
+  }
+  tags = var.tags
+}
+
+resource "helm_release" "cluster_autoscaler" {
+  name       = "cluster-autoscaler"
+  repository = "https://kubernetes.github.io/autoscaler"
+  chart      = "cluster-autoscaler"
+  namespace  = "kube-system"
+  version    = var.cluster_autoscaler_chart_version
+  set = [
+    { name  = "awsRegion",
+      value = var.region
+    },
+    { name  = "autoDiscovery.clusterName",
+      value = var.cluster_name
+    },
+    { name  = "rbac.serviceAccount.name",
+      value = "cluster-autoscaler"
+    },
+    {
+      name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.cluster_autoscaler_irsa.iam_role_arn
+    },
+  ]
+}
+
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server"
+  chart      = "metrics-server"
+  namespace  = "kube-system"
+  version    = var.metrics_server_chart_version
+}

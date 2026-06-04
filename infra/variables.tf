@@ -147,3 +147,14 @@ variable "mgmt_route_table_ids" {
   type        = list(string)
   description = "Bootstrap output: mgmt route tables (public+private) for peering"
 }
+
+##################################################### Addon-ons AWS LB Controller, Cluster Autoscaler, metrics-server. Variables
+variable "lb_controller_chart_version" {
+  type = string
+}
+variable "cluster_autoscaler_chart_version" {
+  type = string
+}
+variable "metrics_server_chart_version" {
+  type = string
+}

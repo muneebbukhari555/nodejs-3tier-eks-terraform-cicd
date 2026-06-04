@@ -50,6 +50,7 @@ locals {
     "rt-${idx}" => rt
   }
 }
+
 module "peering" {
   source                   = "./terraform/modules/peering"
   name                     = local.name
@@ -60,4 +61,18 @@ module "peering" {
   workload_vpc_cidr        = module.network.vpc_cidr_block
   workload_route_table_ids = local.workload_route_tables
   tags                     = local.common_tags
+}
+
+# In-cluster add-ons (Helm): AWS LB Controller, Cluster Autoscaler, metrics-server.
+module "addons" {
+  source                           = "./terraform/modules/addons"
+  name                             = local.name
+  region                           = var.aws_region
+  cluster_name                     = module.eks.cluster_name
+  vpc_id                           = module.network.vpc_id
+  oidc_provider_arn                = module.eks.oidc_provider_arn
+  lb_controller_chart_version      = var.lb_controller_chart_version
+  cluster_autoscaler_chart_version = var.cluster_autoscaler_chart_version
+  metrics_server_chart_version     = var.metrics_server_chart_version
+  tags                             = local.common_tags
 }

@@ -46,3 +46,8 @@ ecr_repositories = [
   "api"
 ]
 ecr_keep_last = 30
+
+##################################################### Addon-ons AWS LB Controller, Cluster Autoscaler, metrics-server. Variables
+lb_controller_chart_version        = "3.3.0"
+cluster_autoscaler_chart_version   = "9.56.0"
+metrics_server_chart_version       = "3.13.0"
