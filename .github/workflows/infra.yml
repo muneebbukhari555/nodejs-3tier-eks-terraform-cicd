@@ -1,6 +1,6 @@
 # Single-root infra pipeline on the `infra` self-hosted runner (mgmt VPC).
 # The one-time bootstrap (state bucket + mgmt VPC + runner fleets) is run locally
-name: infra (terraform)
+name: Infrastructure Deploy (terraform)
 on:
   pull_request:
     paths: ["infra/**", ".github/workflows/infra.yml", ".github/workflows/_terraform.yml"]
