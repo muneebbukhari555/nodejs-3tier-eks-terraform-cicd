@@ -23,7 +23,7 @@ variable "workload_vpc_cidr" {
   description = "CIDR block of the workload VPC"
 }
 variable "workload_route_table_ids" {
-  type        = list(string)
+  type        = map(string)
   description = "All workload route tables that need a return route to mgmt"
 }
 variable "tags" {

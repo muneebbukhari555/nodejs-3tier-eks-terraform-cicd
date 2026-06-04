@@ -21,7 +21,7 @@ resource "aws_route" "mgmt_to_workload" {
 
 # Routes from each workload route table -> mgmt VPC (so replies route back).
 resource "aws_route" "workload_to_mgmt" {
-  for_each                  = toset(var.workload_route_table_ids)
+  for_each                  = var.workload_route_table_ids
   route_table_id            = each.value
   destination_cidr_block    = var.mgmt_vpc_cidr
   vpc_peering_connection_id = aws_vpc_peering_connection.this.id

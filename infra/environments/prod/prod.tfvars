@@ -2,6 +2,11 @@
 aws_region  = "us-east-2"
 environment = "prod"
 
+##################################################### VPC Peering Variables
+mgmt_vpc_id          = "vpc-050267a930a6577f4"
+mgmt_vpc_cidr        = "10.1.0.0/16"
+mgmt_route_table_ids = ["rtb-0f83e317d1efec47c", "rtb-05f827611a515c4aa"]
+
 # VPC Variables
 vpc_name                               = "eks-vpc"
 vpc_cidr_block                         = "10.0.0.0/16"
@@ -41,8 +46,3 @@ ecr_repositories = [
   "api"
 ]
 ecr_keep_last = 30
-
-##################################################### VPC Peering Variables
-mgmt_vpc_id          = "vpc-0b0cb7cfcbc439d34"
-mgmt_vpc_cidr        = "10.1.0.0/16"
-mgmt_route_table_ids = ["rtb-0e2e4c32903e3668d", "rtb-04f66d2fe960604df"]
