@@ -73,21 +73,22 @@ resource "helm_release" "cluster_autoscaler" {
   chart      = "cluster-autoscaler"
   namespace  = "kube-system"
   version    = var.cluster_autoscaler_chart_version
-  set = [
-    { name  = "awsRegion",
-      value = var.region
-    },
-    { name  = "autoDiscovery.clusterName",
-      value = var.cluster_name
-    },
-    { name  = "rbac.serviceAccount.name",
-      value = "cluster-autoscaler"
-    },
-    {
-      name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-      value = module.cluster_autoscaler_irsa.iam_role_arn
-    },
-  ]
+  set {
+    name  = "awsRegion"
+    value = var.region
+  }
+  set {
+    name  = "autoDiscovery.clusterName"
+    value = var.cluster_name
+  }
+  set {
+    name  = "rbac.serviceAccount.name"
+    value = "cluster-autoscaler"
+  }
+  set {
+    name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.cluster_autoscaler_irsa.iam_role_arn
+  }
 }
 
 resource "helm_release" "metrics_server" {
