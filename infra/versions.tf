@@ -17,8 +17,3 @@ terraform {
   }
   backend "s3" {}
 }
-# Provider Block
-provider "aws" {
-  region = var.aws_region
-}
-
