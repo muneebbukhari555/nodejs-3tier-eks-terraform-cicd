@@ -25,7 +25,8 @@ jobs:
       run:
         working-directory: infra
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
       - name: Build -target args
         id: tgt
@@ -38,7 +39,6 @@ jobs:
         run: terraform fmt -check -recursive .
           
       - name: Terraform init
-        id: init
         run: |
           terraform init \
             -backend-config="region=${{env.AWS_REGION}}" \

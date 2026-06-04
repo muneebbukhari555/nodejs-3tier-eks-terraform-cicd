@@ -21,7 +21,6 @@ node_desired_size   = 1
 node_ami_type       = "AL2023_x86_64_STANDARD"
 node_capacity_type  = "ON_DEMAND"
 node_disk_size      = 30
-eks_public_access   = false
 api_allowed_cidrs   = ["10.1.0.0/16", "10.0.0.0/16"]
 addon_versions = {
   vpc-cni            = "v1.21.1-eksbuild.1"
