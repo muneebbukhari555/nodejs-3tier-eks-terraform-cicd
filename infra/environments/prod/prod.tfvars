@@ -66,7 +66,7 @@ db_allocated_storage            = 20
 db_max_allocated_storage        = 0 # 0 = 3x allocated
 db_storage_type                 = "gp3"
 db_multi_az                     = true
-db_backup_retention_days        = 7
+db_backup_retention_days        = 1
 db_performance_insights_enabled = true
 db_deletion_protection          = false # set true for real prod
 db_skip_final_snapshot          = true  # set false for real prod
