@@ -121,6 +121,11 @@ variable "cluster_admin_principal_arns" {
 variable "api_allowed_cidrs" {
   type = list(string)
 }
+
+##################################################### VPC Peering Variables
+variable "app_namespaces" {
+  type = list(string)
+}
 ##################################################### ECR Repositories Variables
 variable "ecr_repositories" {
   type        = list(string)
@@ -158,3 +163,4 @@ variable "cluster_autoscaler_chart_version" {
 variable "metrics_server_chart_version" {
   type = string
 }
+

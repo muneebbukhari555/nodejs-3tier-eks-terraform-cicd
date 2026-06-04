@@ -76,3 +76,23 @@ module "addons" {
   metrics_server_chart_version     = var.metrics_server_chart_version
   tags                             = local.common_tags
 }
+
+# Application namespace (web/api Helm charts deploy here).
+resource "kubernetes_namespace" "app_namespace" {
+  for_each = toset(var.app_namespaces)
+  metadata {
+    name   = each.value
+    labels = { name = each.value }
+  }
+}
+
+# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
+module "observability" {
+  source            = "./terraform/modules/observability"
+  name              = local.name
+  region            = var.aws_region
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  db_instance_id    = xxxxx-xxxx-xxxx-xxxx
+  tags              = local.common_tags
+}

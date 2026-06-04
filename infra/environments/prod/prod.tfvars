@@ -40,6 +40,7 @@ cluster_admin_principal_arns = [
   "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
 ]
 
+app_namespaces = ["app"]
 ##################################################### ECR Repositories to Create
 ecr_repositories = [
   "web",

@@ -33,10 +33,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       {
         type = "metric", x = 0, y = 0, width = 12, height = 6
         properties = {
-          title   = "EKS Node CPU / Memory"
-          region  = var.region
-          period  = 60
-          stat    = "Average"
+          title  = "EKS Node CPU / Memory"
+          region = var.region
+          period = 60
+          stat   = "Average"
           metrics = [
             ["ContainerInsights", "node_cpu_utilization", "ClusterName", var.cluster_name],
             ["ContainerInsights", "node_memory_utilization", "ClusterName", var.cluster_name]
@@ -56,10 +56,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       {
         type = "metric", x = 0, y = 6, width = 12, height = 6
         properties = {
-          title   = "RDS CPU & Connections"
-          region  = var.region
-          period  = 60
-          stat    = "Average"
+          title  = "RDS CPU & Connections"
+          region = var.region
+          period = 60
+          stat   = "Average"
           metrics = [
             ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", var.db_instance_id],
             ["AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", var.db_instance_id]
@@ -69,10 +69,10 @@ resource "aws_cloudwatch_dashboard" "main" {
       {
         type = "metric", x = 12, y = 6, width = 12, height = 6
         properties = {
-          title   = "ALB Requests & 5XX"
-          region  = var.region
-          period  = 60
-          stat    = "Sum"
+          title  = "ALB Requests & 5XX"
+          region = var.region
+          period = 60
+          stat   = "Sum"
           metrics = [
             ["AWS/ApplicationELB", "RequestCount"],
             ["AWS/ApplicationELB", "HTTPCode_Target_5XX_Count"]
