@@ -1,6 +1,5 @@
 ###### Output Variablel Defination
 
-###### VPC Variable Outputs
 # VPC ID
 output "vpc_id" {
   description = "The ID of the VPC"
@@ -38,4 +37,13 @@ output "azs" {
 }
 output "cluster_name" {
   value = module.eks.cluster_name
+}
+output "configure_kubectl" {
+  value = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
+}
+output "ecr_repository_urls" {
+  value = module.ecr.repository_urls
+}
+output "rds_endpoint" {
+  value = module.rds.db_endpoint
 }

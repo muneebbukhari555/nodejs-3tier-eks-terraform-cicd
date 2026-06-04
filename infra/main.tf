@@ -93,6 +93,30 @@ module "observability" {
   region            = var.aws_region
   cluster_name      = module.eks.cluster_name
   oidc_provider_arn = module.eks.oidc_provider_arn
-  db_instance_id    = xxxxx-xxxx-xxxx-xxxx
+  db_instance_id    = module.rds.db_instance_id
   tags              = local.common_tags
+}
+
+# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
+module "rds" {
+  source                 = "./terraform/modules/rds"
+  name                   = var.project
+  vpc_id                 = module.network.vpc_id
+  db_subnet_group_name   = module.network.database_subnet_group_name
+  node_security_group_id = module.eks.node_security_group_id
+  admin_ingress_cidrs    = [var.mgmt_vpc_cidr]
+  instance_class         = var.db_instance_class
+  engine_version         = var.db_engine_version
+  allocated_storage      = var.db_allocated_storage
+  max_allocated_storage  = var.db_max_allocated_storage
+  storage_type           = var.db_storage_type
+  multi_az               = var.db_multi_az
+  db_name                = var.db_name
+  db_username            = var.db_username
+  backup_retention_days  = var.db_backup_retention_days
+
+  performance_insights_enabled = var.db_performance_insights_enabled
+  deletion_protection          = var.db_deletion_protection
+  skip_final_snapshot          = var.db_skip_final_snapshot
+  tags                         = local.common_tags
 }
