@@ -1,0 +1,45 @@
+name: Infrastructure Destroy (terraform)
+on: 
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Infra Environment Name (prod, staging, etc.)'
+        required: true
+        type: string
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  TF_STATE_S3_BUCKET: ${{ vars.TF_STATE_S3_BUCKET }}
+  TF_State_File_Key: ${{ vars.TF_State_File_Key }}
+  TF_IN_AUTOMATION: "true"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: infra
+
+permissions:
+  contents: read
+
+jobs:
+  destroy-infra:
+    runs-on: [self-hosted, linux, infra]
+    environment: ${{ inputs.environment }}
+    steps:
+      # Checkout Code
+      - name: checkout code
+        uses: actions/checkout@v3
+
+      - name: Terraform FMT Check
+        run: terraform fmt -check -recursive .
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config="region=${{env.AWS_REGION}}" \
+            -backend-config="bucket=${{env.TF_STATE_S3_BUCKET}}" \
+            -backend-config="key=${{env.TF_State_File_Key}}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Destroy
+        run: terraform destroy -var-file=environments/prod/prod.tfvars -auto-approve
