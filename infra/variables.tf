@@ -122,7 +122,7 @@ variable "api_allowed_cidrs" {
   type = list(string)
 }
 
-##################################################### VPC Peering Variables
+##################################################### EKS Namespaces Variables
 variable "app_namespaces" {
   type = list(string)
 }
