@@ -14,7 +14,7 @@ cluster:
 4. An **SSM SecureString** holding the runner registration token (GitHub App
    token / PAT), set out-of-band after apply.
 
-No GitHub OIDC and no IAM web-identity roles — runners use their instance roles.
+No GitHub OIDC and no IAM web-identity roles, runners use their instance roles.
 
 ## Run it
 

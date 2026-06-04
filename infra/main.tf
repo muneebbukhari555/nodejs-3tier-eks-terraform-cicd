@@ -44,6 +44,12 @@ module "ecr" {
 }
 
 # VPC Peering
+locals {
+  workload_route_tables = {
+    for idx, rt in module.network.route_table_ids :
+    "rt-${idx}" => rt
+  }
+}
 module "peering" {
   source                   = "./terraform/modules/peering"
   name                     = local.name
@@ -52,6 +58,6 @@ module "peering" {
   mgmt_route_table_ids     = var.mgmt_route_table_ids
   workload_vpc_id          = module.network.vpc_id
   workload_vpc_cidr        = module.network.vpc_cidr_block
-  workload_route_table_ids = module.network.route_table_ids
+  workload_route_table_ids = local.workload_route_tables
   tags                     = local.common_tags
 }

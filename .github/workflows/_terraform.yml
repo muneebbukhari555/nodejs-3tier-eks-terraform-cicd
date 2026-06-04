@@ -13,7 +13,7 @@ permissions:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   TF_STATE_S3_BUCKET: ${{ vars.TF_STATE_S3_BUCKET }}
-  TF_State_File_Key: ${{ vars.TF_State_File_Key }}
+  TF_STATE_FILE_KEY: ${{ vars.TF_STATE_FILE_KEY }}
   TF_IN_AUTOMATION: "true"
 
 jobs:
@@ -37,13 +37,18 @@ jobs:
 
       - name: Terraform FMT Check
         run: terraform fmt -check -recursive .
-          
+      
+      - name: Debug Backend
+        run: |
+          echo "AWS_REGION=${AWS_REGION}"
+          echo "TF_STATE_S3_BUCKET=${TF_STATE_S3_BUCKET}"
+          echo "TF_STATE_FILE_KEY=${TF_STATE_FILE_KEY}"
       - name: Terraform init
         run: |
           terraform init \
             -backend-config="region=${{env.AWS_REGION}}" \
             -backend-config="bucket=${{env.TF_STATE_S3_BUCKET}}" \
-            -backend-config="key=${{env.TF_State_File_Key}}" \
+            -backend-config="key=${{env.TF_STATE_FILE_KEY}}" \
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 

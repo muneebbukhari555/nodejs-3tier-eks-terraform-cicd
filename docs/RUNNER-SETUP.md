@@ -1,4 +1,4 @@
-# Self-Hosted Runner Setup — step by step
+# Self-Hosted Runner Setup (step by step)
 
 This is the exact order to bring up the self-hosted runners. The one thing that
 trips people up: **a runner EC2 instance, on boot, does `docker run <ECR image>`.
@@ -28,7 +28,7 @@ image. **Path B** is what to do if you already pointed `runner_image` at ECR
 
 ---
 
-## Step 1 — Put the GitHub token in SSM
+## Step 1: Put the GitHub token in SSM
 
 The bootstrap created the param with a placeholder; set the real value:
 
@@ -41,7 +41,7 @@ aws ssm put-parameter --region us-east-2 \
 
 ---
 
-## Step 2 — Get the ECR repo URL (created by bootstrap)
+## Step 2: Get the ECR repo URL (created by bootstrap)
 
 ```bash
 cd infra/terraform/bootstrap
@@ -52,7 +52,7 @@ echo "$REPO"
 
 ---
 
-## Step 3 — Build & push the runner image
+## Step 3: Build & push the runner image
 
 The runners are **linux/amd64**, so build for that platform (important on Apple
 Silicon Macs, which are arm64):
@@ -73,7 +73,7 @@ aws ecr list-images --region us-east-2 --repository-name node3tier/runner
 
 ---
 
-## Step 4 — Point the fleets at the image (only if not already)
+## Step 4: Point the fleets at the image (only if not already)
 
 In `infra/terraform/bootstrap/terraform.tfvars`:
 
@@ -87,7 +87,7 @@ terraform apply        # in infra/terraform/bootstrap
 
 ---
 
-## Step 5 — Recycle the runner instances
+## Step 5: Recycle the runner instances
 
 The already-running instances tried to pull a non-existent image. Replace them so
 userdata re-runs against the now-present image:
@@ -99,7 +99,7 @@ aws autoscaling start-instance-refresh --region us-east-2 --auto-scaling-group-n
 
 ---
 
-## Step 6 — Verify the runners registered
+## Step 6: Verify the runners registered
 
 GitHub repo → **Settings → Actions → Runners** — you should see runners labelled
 `infra` and `app` as **Idle**. Or:
