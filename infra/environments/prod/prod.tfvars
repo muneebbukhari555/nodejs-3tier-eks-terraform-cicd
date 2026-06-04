@@ -1,4 +1,4 @@
-# Generic Variables
+##################################################### Generic Variables
 aws_region  = "us-east-2"
 environment = "prod"
 
@@ -12,7 +12,7 @@ vpc_create_database_subnet_group       = true
 vpc_create_database_subnet_route_table = true
 vpc_enable_nat_gateway                 = true
 
-# EKS Cluster Variables
+##################################################### EKS Cluster Variables
 cluster_version     = "1.35"
 node_instance_types = ["m7i-flex.large"]
 node_min_size       = 1
@@ -36,9 +36,14 @@ cluster_admin_principal_arns = [
   "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
 ]
 
-# ECR Repositories to Create
+##################################################### ECR Repositories to Create
 ecr_repositories = [
   "web",
   "api"
 ]
 ecr_keep_last = 30
+
+##################################################### VPC Peering Variables
+mgmt_vpc_id           = "vpc-0b0cb7cfcbc439d34"
+mgmt_vpc_cidr         = "10.1.0.0/16"
+mgmt_route_table_ids  = ["rtb-0e2e4c32903e3668d", "rtb-04f66d2fe960604df"]
