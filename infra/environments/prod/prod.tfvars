@@ -44,6 +44,6 @@ ecr_repositories = [
 ecr_keep_last = 30
 
 ##################################################### VPC Peering Variables
-mgmt_vpc_id           = "vpc-0b0cb7cfcbc439d34"
-mgmt_vpc_cidr         = "10.1.0.0/16"
-mgmt_route_table_ids  = ["rtb-0e2e4c32903e3668d", "rtb-04f66d2fe960604df"]
+mgmt_vpc_id          = "vpc-0b0cb7cfcbc439d34"
+mgmt_vpc_cidr        = "10.1.0.0/16"
+mgmt_route_table_ids = ["rtb-0e2e4c32903e3668d", "rtb-04f66d2fe960604df"]

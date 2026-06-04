@@ -5,8 +5,8 @@
 # ---------------------------------------------------------------------------
 
 resource "aws_vpc_peering_connection" "this" {
-  vpc_id      = var.mgmt_vpc_id      # requester
-  peer_vpc_id = var.workload_vpc_id  # accepter
+  vpc_id      = var.mgmt_vpc_id     # requester
+  peer_vpc_id = var.workload_vpc_id # accepter
   auto_accept = true
   tags        = merge(var.tags, { Name = "${var.name}-mgmt-to-workload" })
 }
