@@ -2,7 +2,7 @@
 
 module "lb_controller_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~> 6.6.0"
+  version = "~> 5.39"
 
   role_name                              = "${var.name}-lb-controller"
   attach_load_balancer_controller_policy = true
@@ -17,6 +17,7 @@ module "lb_controller_irsa" {
 }
 
 resource "helm_release" "lb_controller" {
+  depends_on = [module.lb_controller_irsa]
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
@@ -43,7 +44,7 @@ resource "helm_release" "lb_controller" {
 
 module "cluster_autoscaler_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~> 6.6.0"
+  version = "~> 5.39"
 
   role_name                        = "${var.name}-cluster-autoscaler"
   attach_cluster_autoscaler_policy = true
@@ -59,6 +60,7 @@ module "cluster_autoscaler_irsa" {
 }
 
 resource "helm_release" "cluster_autoscaler" {
+  depends_on = [module.cluster_autoscaler_irsa]
   name       = "cluster-autoscaler"
   repository = "https://kubernetes.github.io/autoscaler"
   chart      = "cluster-autoscaler"
