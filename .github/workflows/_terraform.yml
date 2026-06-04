@@ -13,7 +13,7 @@ permissions:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   TF_STATE_S3_BUCKET: ${{ vars.TF_STATE_S3_BUCKET }}
-  TF_State_File_Key: ${{ vars.TF_State_File_Key }}
+  TF_STATE_FILE_KEY: ${{ vars.TF_STATE_FILE_KEY }}
   TF_IN_AUTOMATION: "true"
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
           terraform init \
             -backend-config="region=${{env.AWS_REGION}}" \
             -backend-config="bucket=${{env.TF_STATE_S3_BUCKET}}" \
-            -backend-config="key=${{env.TF_State_File_Key}}" \
+            -backend-config="key=${{env.TF_STATE_FILE_KEY}}" \
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
