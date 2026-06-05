@@ -123,9 +123,9 @@ variable "api_allowed_cidrs" {
 }
 
 ##################################################### EKS Namespaces Variables
-variable "app_namespaces" {
-  type = list(string)
-}
+# variable "app_namespaces" {
+#   type = list(string)
+# }
 ##################################################### ECR Repositories Variables
 variable "ecr_repositories" {
   type        = list(string)

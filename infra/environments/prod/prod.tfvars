@@ -41,9 +41,9 @@ cluster_admin_principal_arns = [
 ]
 
 ##################################################### EKS Namespaces to Create
-app_namespaces = [
-  "app"
-]
+# app_namespaces = [
+#   "app"
+# ]
 
 ##################################################### ECR Repositories to Create
 ecr_repositories = [
