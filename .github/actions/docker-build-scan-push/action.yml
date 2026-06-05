@@ -1,0 +1,48 @@
+name: "Docker build, scan, push"
+description: "Build a service image, scan it with Trivy (fail on HIGH/CRITICAL), then push to ECR."
+
+inputs:
+  context:
+    description: "Build context directory (web or api)."
+    required: true
+  image:
+    description: "Full image repo without tag (e.g. <registry>/node3tier/web)."
+    required: true
+  tag:
+    description: "Immutable image tag (e.g. git sha)."
+    required: true
+  severity:
+    description: "Trivy severities that fail the build."
+    required: false
+    default: "HIGH,CRITICAL"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Build image (load locally for scanning)
+      uses: docker/build-push-action@v7
+      with:
+        context: ${{ inputs.context }}
+        load: true
+        tags: ${{ inputs.image }}:${{ inputs.tag }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Trivy image scan
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        image-ref: ${{ inputs.image }}:${{ inputs.tag }}
+        format: "sarif"
+        output: "trivy-${{ inputs.tag }}.sarif"
+        severity: ${{ inputs.severity }}
+        exit-code: "1"
+        ignore-unfixed: true
+
+    - name: Upload Trivy results to code scanning
+      if: always()
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: "trivy-${{ inputs.tag }}.sarif"
