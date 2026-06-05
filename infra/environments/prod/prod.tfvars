@@ -18,15 +18,16 @@ vpc_create_database_subnet_route_table = true
 vpc_enable_nat_gateway                 = true
 
 ##################################################### EKS Cluster Variables
-cluster_version     = "1.35"
-node_instance_types = ["m7i-flex.large"]
-node_min_size       = 1
-node_max_size       = 6
-node_desired_size   = 1
-node_ami_type       = "AL2023_x86_64_STANDARD"
-node_capacity_type  = "ON_DEMAND"
-node_disk_size      = 30
-api_allowed_cidrs   = ["10.1.0.0/16", "10.0.0.0/16"]
+enable_k8s_resources = false # set true to create in-cluster add-ons and namespaces. Set false to skip (for faster iteration when only infra changes).
+cluster_version      = "1.35"
+node_instance_types  = ["m7i-flex.large"]
+node_min_size        = 1
+node_max_size        = 6
+node_desired_size    = 1
+node_ami_type        = "AL2023_x86_64_STANDARD"
+node_capacity_type   = "ON_DEMAND"
+node_disk_size       = 30
+api_allowed_cidrs    = ["10.1.0.0/16", "10.0.0.0/16"]
 addon_versions = {
   vpc-cni            = "v1.21.1-eksbuild.1"
   kube-proxy         = "v1.35.3-eksbuild.2"
@@ -41,9 +42,9 @@ cluster_admin_principal_arns = [
 ]
 
 ##################################################### EKS Namespaces to Create
-# app_namespaces = [
-#   "app"
-# ]
+app_namespaces = [
+  "app"
+]
 
 ##################################################### ECR Repositories to Create
 ecr_repositories = [
