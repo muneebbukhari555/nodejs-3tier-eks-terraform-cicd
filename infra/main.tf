@@ -84,7 +84,7 @@ module "addons" {
 
 # Application namespace (web/api Helm charts deploy here).
 resource "kubernetes_namespace" "app_namespace" {
-  for_each = var.enable_k8s_resources ? toset(var.app_namespaces) : []
+  for_each = var.enable_k8s_resources ? toset(var.app_namespaces) : toset([])
   metadata {
     name   = each.value
     labels = { name = each.value }
