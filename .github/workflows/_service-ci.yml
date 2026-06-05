@@ -46,6 +46,7 @@ jobs:
     name: Build, scan & push (ECR)
     needs: [quality, codeql]
     runs-on: [self-hosted, linux, app]
+    environment: prod
     outputs:
       image: ${{ steps.ecr.outputs.image }}
       image_tag: ${{ steps.ecr.outputs.image_tag }}
