@@ -81,18 +81,18 @@ module "addons" {
   ]
 }
 
-# Application namespace (web/api Helm charts deploy here).
-resource "kubernetes_namespace" "app_namespace" {
-  for_each = toset(var.app_namespaces)
-  metadata {
-    name   = each.value
-    labels = { name = each.value }
-  }
-  depends_on = [
-    module.peering,
-    module.eks
-  ]
-}
+# # Application namespace (web/api Helm charts deploy here).
+# resource "kubernetes_namespace" "app_namespace" {
+#   for_each = toset(var.app_namespaces)
+#   metadata {
+#     name   = each.value
+#     labels = { name = each.value }
+#   }
+#   depends_on = [
+#     module.peering,
+#     module.eks
+#   ]
+# }
 
 # Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
 module "observability" {
