@@ -68,6 +68,7 @@ jobs:
           context: ${{ inputs.service }}
           image: ${{ steps.ecr.outputs.image }}
           tag: ${{ github.sha }}
+          severity: "LOW"
 
       - name: Tag the branch channel (dev or prod)
         run: |
