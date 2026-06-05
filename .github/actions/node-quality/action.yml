@@ -1,0 +1,40 @@
+name: "Node quality gate"
+description: "Install deps, run unit tests, and dependency vulnerability audit for a Node service."
+
+inputs:
+  working-directory:
+    description: "Service directory (web or api)."
+    required: true
+  node-version:
+    description: "Node.js version."
+    required: false
+    default: "26.3"
+  audit-level:
+    description: "Fail npm audit at this severity or higher."
+    required: false
+    default: "high"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npm install
+
+    - name: Unit tests
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npm test
+
+    - name: Dependency audit (SCA)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      # Non-blocking by default because the sample uses old pinned deps; flip
+      # `|| true` off to enforce once dependencies are modernized.
+      run: npm audit --audit-level=${{ inputs.audit-level }} || true

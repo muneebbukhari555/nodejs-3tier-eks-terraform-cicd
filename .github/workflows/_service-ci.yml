@@ -1,0 +1,97 @@
+name: Reusable service CI/CD
+#   dev   branch  ->  test -> CodeQL -> build -> Trivy scan -> PUSH to ECR   (NO deploy)
+#   main  branch  ->  test -> CodeQL -> build -> Trivy scan -> PUSH to ECR -> DEPLOY to EKS, gated by the `prod` environment (manual approval)
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "Service name (web|api)."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_NAMESPACE: ${{ vars.ECR_NAMESPACE }}
+  CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+
+jobs:
+  quality:
+    name: Unit tests & SCA
+    runs-on: [self-hosted, linux, app]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: ./.github/actions/node-quality
+        with:
+          working-directory: ${{ inputs.service }}
+
+  codeql:
+    name: CodeQL (SAST)
+    runs-on: [self-hosted, linux, app]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-${{ inputs.service }}"
+
+  # Build, scan, push — on BOTH dev and main.
+  build-push:
+    name: Build, scan & push (ECR)
+    needs: [quality, codeql]
+    runs-on: [self-hosted, linux, app]
+    outputs:
+      image: ${{ steps.ecr.outputs.image }}
+      image_tag: ${{ steps.ecr.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ECR login
+        id: ecr
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "image=$REGISTRY/${ECR_NAMESPACE}/${{ inputs.service }}" >> "$GITHUB_OUTPUT"
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "$REGISTRY"
+
+      - name: Build, scan & push image
+        uses: ./.github/actions/docker-build-scan-push
+        with:
+          context: ${{ inputs.service }}
+          image: ${{ steps.ecr.outputs.image }}
+          tag: ${{ github.sha }}
+
+      - name: Tag the branch channel (dev or prod)
+        run: |
+          CHANNEL=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+          echo "image_tag=${{ github.sha }}-$CHANNEL" >> "$GITHUB_OUTPUT"
+          docker tag "${{ steps.ecr.outputs.image }}:${{ github.sha }}" "${{ steps.ecr.outputs.image }}:${{ github.sha }}-$CHANNEL"
+          docker push "${{ steps.ecr.outputs.image }}:${{ github.sha }}-$CHANNEL"
+
+  # Deploy ONLY on main, behind the gated `prod` environment (manual approval).
+  deploy:
+    name: Deploy to EKS (gated)
+    needs: build-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux, app]
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure kubectl
+        run: aws eks update-kubeconfig --region "$AWS_REGION" --name "$CLUSTER_NAME"
+      - name: Helm rollout (zero-downtime)
+        run: |
+          helm upgrade --install ${{ inputs.service }} ./helm/${{ inputs.service }} \
+            --namespace app \
+            --set image.registry="$(echo '${{ needs.build-push.outputs.image }}' | cut -d/ -f1)" \
+            --set image.repository="${ECR_NAMESPACE}/${{ inputs.service }}" \
+            --set image.tag="${{ needs.build-push.outputs.image_tag }}" \
+            --wait --timeout 5m
+          kubectl -n app rollout status deployment/${{ inputs.service }} --timeout=180s
