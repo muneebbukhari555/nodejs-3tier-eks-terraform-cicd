@@ -75,6 +75,10 @@ module "addons" {
   cluster_autoscaler_chart_version = var.cluster_autoscaler_chart_version
   metrics_server_chart_version     = var.metrics_server_chart_version
   tags                             = local.common_tags
+  depends_on = [
+    module.peering,
+    module.eks
+  ]
 }
 
 # Application namespace (web/api Helm charts deploy here).
@@ -84,6 +88,10 @@ resource "kubernetes_namespace" "app_namespace" {
     name   = each.value
     labels = { name = each.value }
   }
+  depends_on = [
+    module.peering,
+    module.eks
+  ]
 }
 
 # Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
