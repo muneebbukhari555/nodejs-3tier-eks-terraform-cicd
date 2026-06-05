@@ -1,4 +1,4 @@
-project      = "node3tier"
+project      = "node3tier-prod"
 region       = "us-east-2"
 github_owner = "muneebbukhari555"
 github_repo  = "nodejs-3tier-eks-terraform-cicd"
