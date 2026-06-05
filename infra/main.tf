@@ -65,6 +65,7 @@ module "peering" {
 
 # In-cluster add-ons (Helm): AWS LB Controller, Cluster Autoscaler, metrics-server.
 module "addons" {
+  count                            = var.enable_k8s_resources ? 1 : 0
   source                           = "./terraform/modules/addons"
   name                             = local.name
   region                           = var.aws_region
@@ -75,27 +76,24 @@ module "addons" {
   cluster_autoscaler_chart_version = var.cluster_autoscaler_chart_version
   metrics_server_chart_version     = var.metrics_server_chart_version
   tags                             = local.common_tags
+  depends_on = [
+    module.peering,
+    module.eks
+  ]
 }
 
 # Application namespace (web/api Helm charts deploy here).
-resource "kubernetes_namespace" "app_namespace" {
-  for_each = toset(var.app_namespaces)
-  metadata {
-    name   = each.value
-    labels = { name = each.value }
-  }
-}
-
-# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
-module "observability" {
-  source            = "./terraform/modules/observability"
-  name              = local.name
-  region            = var.aws_region
-  cluster_name      = module.eks.cluster_name
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  db_instance_id    = module.rds.db_instance_id
-  tags              = local.common_tags
-}
+# resource "kubernetes_namespace" "app_namespace" {
+#   for_each = var.enable_k8s_resources ? toset(var.app_namespaces) : toset([])
+#   metadata {
+#     name   = each.value
+#     labels = { name = each.value }
+#   }
+#   depends_on = [
+#     module.peering,
+#     module.eks
+#   ]
+# }
 
 # Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
 module "rds" {
@@ -119,4 +117,19 @@ module "rds" {
   deletion_protection          = var.db_deletion_protection
   skip_final_snapshot          = var.db_skip_final_snapshot
   tags                         = local.common_tags
+}
+
+# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
+module "observability" {
+  source            = "./terraform/modules/observability"
+  name              = local.name
+  region            = var.aws_region
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  db_instance_id    = module.rds.db_instance_id
+  tags              = local.common_tags
+  depends_on = [
+    module.rds,
+    module.eks
+  ]
 }
