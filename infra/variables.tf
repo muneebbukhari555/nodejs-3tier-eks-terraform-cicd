@@ -127,9 +127,9 @@ variable "enable_k8s_resources" {
   default = false
 }
 ##################################################### EKS Namespaces Variables
-# variable "app_namespaces" {
-#   type = list(string)
-# }
+variable "app_namespaces" {
+  type = list(string)
+}
 ##################################################### ECR Repositories Variables
 variable "ecr_repositories" {
   type        = list(string)
