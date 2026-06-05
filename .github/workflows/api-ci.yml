@@ -20,3 +20,4 @@ jobs:
     uses: ./.github/workflows/_service-ci.yml
     with:
       service: api
+    secrets: inherit
