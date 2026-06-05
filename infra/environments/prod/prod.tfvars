@@ -5,7 +5,7 @@ environment = "prod"
 ##################################################### VPC Peering Variables
 mgmt_vpc_id          = "vpc-050267a930a6577f4"
 mgmt_vpc_cidr        = "10.1.0.0/16"
-mgmt_route_table_ids = ["rtb-0f83e317d1efec47c", "rtb-05f827611a515c4aa"]
+mgmt_route_table_ids = ["rtb-01262639baa9d7351", "rtb-018075c6a070fc6d4"]
 
 # VPC Variables
 vpc_name                               = "eks-vpc"
