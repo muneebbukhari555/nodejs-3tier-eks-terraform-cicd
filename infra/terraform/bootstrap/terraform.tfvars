@@ -11,7 +11,7 @@ infra_runner_min     = 1
 infra_runner_max     = 3
 infra_runner_desired = 1
 
-app_runner_type    = "t3.small"
+app_runner_type    = "m7i-flex.large"
 app_runner_min     = 1
 app_runner_max     = 3
 app_runner_desired = 1

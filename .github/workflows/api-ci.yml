@@ -11,6 +11,10 @@ on:
       - ".github/actions/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   api:
     uses: ./.github/workflows/_service-ci.yml
