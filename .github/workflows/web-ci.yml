@@ -1,6 +1,6 @@
 name: web CI/CD
 
-# Runs only when the web tier (or shared pipeline code) changes.
+## Runs only when the web tier (or shared pipeline code) changes.
 on:
   push:
     # branches: [main, develop]
