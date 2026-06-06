@@ -3,9 +3,9 @@ aws_region  = "us-east-2"
 environment = "prod"
 
 ##################################################### VPC Peering Variables
-mgmt_vpc_id          = "vpc-050267a930a6577f4"
+mgmt_vpc_id          = "vpc-0d97d86e08ed5dcfa"
 mgmt_vpc_cidr        = "10.1.0.0/16"
-mgmt_route_table_ids = ["rtb-01262639baa9d7351", "rtb-018075c6a070fc6d4"]
+mgmt_route_table_ids = ["rtb-0c24cc7d6b635c5e3", "rtb-08af318b25eff723f"]
 
 # VPC Variables
 vpc_name                               = "eks-vpc"
@@ -36,9 +36,9 @@ addon_versions = {
 }
 cluster_admin_principal_arns = [
   "arn:aws:iam::839792743202:user/toptal",
-  "arn:aws:iam::839792743202:role/node3tier-app-runner-role",
-  "arn:aws:iam::839792743202:role/node3tier-bastion-role",
-  "arn:aws:iam::839792743202:role/node3tier-infra-runner-role"
+  "arn:aws:iam::839792743202:role/node3tier-prod-app-runner-role",
+  "arn:aws:iam::839792743202:role/node3tier-prod-bastion-role",
+  "arn:aws:iam::839792743202:role/node3tier-prod-infra-runner-role"
 ]
 
 ##################################################### EKS Namespaces to Create
