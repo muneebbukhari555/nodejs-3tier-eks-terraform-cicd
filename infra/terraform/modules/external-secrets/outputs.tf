@@ -5,7 +5,7 @@ output "irsa_role_arn" {
 
 output "cluster_secret_store_name" {
   description = "Name of the ClusterSecretStore created in-cluster."
-  value       = kubernetes_manifest.cluster_secret_store.manifest.metadata.name
+  value       = var.cluster_secret_store_name
 }
 
 output "namespace" {
