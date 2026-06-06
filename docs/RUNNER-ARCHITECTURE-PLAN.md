@@ -3,7 +3,12 @@
 > **Status: IMPLEMENTED.** This is the design in the repo. DEPLOYMENT.md is the
 > operational single source of truth; this file explains the *why*.
 
+## Problem
 
+A **private** EKS API means CI must run inside the VPC. In-cluster runners (ARC)
+can't create the cluster that hosts them (bootstrap paradox). The fix: run CI on
+**self-hosted runners that live outside the workload cluster** — in the
+management VPC, peered to it.
 
 ## Design: two ephemeral, container-based runner fleets (no ARC, no GitHub OIDC)
 

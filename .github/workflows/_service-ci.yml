@@ -130,7 +130,6 @@ jobs:
             --namespace ${{ vars.NAMESPACE }} \
             --set image.repository="${{ steps.image.outputs.repository }}" \
             --set image.tag="${{ needs.build-push.outputs.image_tag }}" \
-            --set-string ingress.annotations.alb\\.ingress\\.kubernetes\\.io/certificate-arn="${{ secrets.ACM_CERT_ARN }}" \
             --wait \
             --timeout 5m
       - name: Verify Rollout
