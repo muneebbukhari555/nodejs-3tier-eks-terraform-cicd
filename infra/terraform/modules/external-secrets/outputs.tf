@@ -10,5 +10,5 @@ output "cluster_secret_store_name" {
 
 output "namespace" {
   description = "Kubernetes namespace the operator is installed into."
-  value       = kubernetes_namespace.external_secrets.metadata[0].name
+  value       = kubernetes_namespace_v1.external_secrets.metadata[0].name
 }
