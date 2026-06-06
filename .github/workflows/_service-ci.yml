@@ -46,7 +46,7 @@ jobs:
   # Build, scan, push — on BOTH dev and main.
   build-push:
     name: Build, scan & push (ECR)
-    # needs: [quality, codeql]
+    needs: [quality, codeql]
     runs-on: [self-hosted, linux, app]
     outputs:
       image_tag: ${{ steps.meta.outputs.image_tag }}
