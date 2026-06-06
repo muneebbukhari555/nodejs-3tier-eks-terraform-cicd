@@ -229,3 +229,18 @@ variable "route53_zone_id" {
   type    = string
   default = ""
 }
+
+##################################################### ClloudFront CDN Variables
+
+variable "web_alb_dns_name" {
+  type        = string
+  default     = ""
+  description = "Set on the second apply, after the Ingress provisions the ALB"
+}
+
+# Custom domain + Route53 hosted zone for ACM/TLS. Leave domain_name empty to
+# skip ACM entirely (CloudFront then uses its default *.cloudfront.net cert).
+variable "domain_name" {
+  type    = string
+  default = ""
+}

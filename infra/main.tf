@@ -119,6 +119,14 @@ module "rds" {
   tags                         = local.common_tags
 }
 
+# Backups: AWS Backup plan for RDS instance.
+module "backups" {
+  source = "./terraform/modules/backups"
+  name                 = local.name
+  backup_resource_arns = [module.rds.db_instance_arn]
+  tags                 = local.common_tags
+}
+
 # Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
 module "observability" {
   source            = "./terraform/modules/observability"
@@ -144,4 +152,14 @@ module "acm" {
     aws.cloudfront = aws.us_east_1
   }
   tags = local.common_tags
+}
+
+# CloudFront CDN in front of the Web ALB.
+module "cdn" {
+  source = "./terraform/modules/cdn"
+  name         = local.name
+  alb_dns_name = var.web_alb_dns_name
+  viewer_certificate_arn = module.acm.cloudfront_certificate_arn
+  aliases                = var.domain_name == "" ? [] : [var.domain_name]
+  tags                   = local.common_tags
 }
