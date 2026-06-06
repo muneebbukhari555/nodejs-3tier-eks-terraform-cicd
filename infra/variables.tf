@@ -218,3 +218,14 @@ variable "db_skip_final_snapshot" {
   type    = bool
   default = true
 }
+
+##################################################### ACM AND CDN Variables
+
+variable "domain_name" {
+  type    = string
+  default = ""
+}
+variable "route53_zone_id" {
+  type    = string
+  default = ""
+}
