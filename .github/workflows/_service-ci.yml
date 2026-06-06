@@ -49,18 +49,29 @@ jobs:
     # needs: [quality, codeql]
     runs-on: [self-hosted, linux, app]
     outputs:
-      image_tag: ${{ steps.tag.outputs.image_tag }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v5
+
+      - name: Build image metadata
+        id: meta
+        run: |
+          SHORT_SHA=${GITHUB_SHA::7}
+
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            CHANNEL=prod
+          else
+            CHANNEL=dev
+          fi
+
+          echo "image_tag=${SHORT_SHA}-${CHANNEL}" >> "$GITHUB_OUTPUT"
 
       - name: ECR login
         id: ecr
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "image=$REGISTRY/${ECR_NAMESPACE}/${{ inputs.service }}" >> "$GITHUB_OUTPUT"
-          echo "image_tag=${SHORT_SHA}-$CHANNEL" >> "$GITHUB_OUTPUT"
 
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin "$REGISTRY"
@@ -70,17 +81,8 @@ jobs:
         with:
           context: ${{ inputs.service }}
           image: ${{ steps.ecr.outputs.image }}
-          tag: ${{ steps.ecr.outputs.image_tag }}
+          tag: ${{ steps.meta.outputs.image_tag }}
           severity: "LOW"
-
-      - name: Tag the branch channel (dev or prod)
-        id: tag
-        run: |
-          
-          CHANNEL=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          docker tag "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}" \
-          "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
-          docker push "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
 
   # Deploy ONLY on main, behind the gated `prod` environment (manual approval).
   deploy:
@@ -126,7 +128,6 @@ jobs:
         run: |
           helm upgrade --install ${{ inputs.service }} ./helm/${{ inputs.service }} \
             --namespace ${{ vars.NAMESPACE }} \
-            --create-namespace \
             --set image.repository="${{ steps.image.outputs.repository }}" \
             --set image.tag="${{ needs.build-push.outputs.image_tag }}" \
             --set-string ingress.annotations.alb\\.ingress\\.kubernetes\\.io/certificate-arn="${{ secrets.ACM_CERT_ARN }}" \
