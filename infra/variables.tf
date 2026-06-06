@@ -157,6 +157,25 @@ variable "mgmt_route_table_ids" {
   description = "Bootstrap output: mgmt route tables (public+private) for peering"
 }
 
+##################################################### External Secrets Operator Variables
+variable "external_secrets_chart_version" {
+  type        = string
+  default     = "2.4.0"
+  description = "Helm chart version for external-secrets"
+}
+
+variable "secrets_prefix" {
+  type        = string
+  default     = ""
+  description = <<-EOT
+    IAM resource prefix for Secrets Manager and SSM Parameter Store.
+    Secrets starting with this string are readable by the operator.
+    Leave empty to allow access to all secrets (not recommended for prod).
+    Example: "node3tier/" scopes access to secrets like "node3tier/db-password".
+  EOT
+}
+
+
 ##################################################### Addon-ons AWS LB Controller, Cluster Autoscaler, metrics-server. Variables
 variable "lb_controller_chart_version" {
   type = string

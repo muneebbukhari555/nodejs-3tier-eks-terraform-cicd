@@ -53,6 +53,10 @@ ecr_repositories = [
 ]
 ecr_keep_last = 30
 
+##################################################### External Secrets Variables
+external_secrets_chart_version = "2.4.0"
+secret_prefix                  = "node3tier-prod"
+
 ##################################################### Addon-ons AWS LB Controller, Cluster Autoscaler, metrics-server. Variables
 lb_controller_chart_version      = "3.3.0"
 cluster_autoscaler_chart_version = "9.56.0"

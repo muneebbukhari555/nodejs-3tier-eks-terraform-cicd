@@ -1,6 +1,4 @@
-# Terraform Block
 terraform {
-  required_version = ">= 1.15.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -14,10 +12,13 @@ terraform {
       source  = "hashicorp/helm",
       version = "~> 3.2.0"
     }
+    # alekc/kubectl defers CRD validation to apply time (actively maintained
+    # fork of the archived gavinbunney/kubectl; Terraform 1.x compatible).
+    # Required for ClusterSecretStore, whose CRD is installed by the Helm chart
+    # in the same apply kubernetes_manifest would fail at plan time.
     kubectl = {
       source  = "alekc/kubectl"
       version = "~> 2.0"
     }
   }
-  backend "s3" {}
 }

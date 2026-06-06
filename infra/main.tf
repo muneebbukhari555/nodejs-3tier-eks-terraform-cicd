@@ -63,6 +63,19 @@ module "peering" {
   tags                     = local.common_tags
 }
 
+# ClusterSecretStore backed by Secrets Manager.
+module "external_secrets" {
+  count             = var.enable_k8s_resources ? 1 : 0
+  source            = "./terraform/modules/external-secrets"
+  chart_version     = var.external_secrets_chart_version
+  name              = local.name
+  region            = var.aws_region
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  secret_prefix     = var.secrets_prefix
+  tags              = local.common_tags
+}
+
 # In-cluster add-ons (Helm): AWS LB Controller, Cluster Autoscaler, metrics-server.
 module "addons" {
   count                            = var.enable_k8s_resources ? 1 : 0
@@ -95,7 +108,7 @@ resource "kubernetes_namespace_v1" "app_namespace" {
   ]
 }
 
-# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
+# RDS Database
 module "rds" {
   source                 = "./terraform/modules/rds"
   name                   = local.name
