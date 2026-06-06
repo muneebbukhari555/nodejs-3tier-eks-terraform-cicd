@@ -58,7 +58,10 @@ jobs:
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "image=$REGISTRY/${ECR_NAMESPACE}/${{ inputs.service }}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${SHORT_SHA}-$CHANNEL" >> "$GITHUB_OUTPUT"
+
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin "$REGISTRY"
 
@@ -73,11 +76,11 @@ jobs:
       - name: Tag the branch channel (dev or prod)
         id: tag
         run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          
           CHANNEL=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          echo "image_tag=${SHORT_SHA}-$CHANNEL" >> "$GITHUB_OUTPUT"
-          docker tag "${{ steps.ecr.outputs.image }}:${SHORT_SHA}" "${{ steps.ecr.outputs.image }}:${SHORT_SHA}-$CHANNEL"
-          docker push "${{ steps.ecr.outputs.image }}:${SHORT_SHA}-$CHANNEL"
+          docker tag "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }} \
+          "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
+          docker push "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
 
   # Deploy ONLY on main, behind the gated `prod` environment (manual approval).
   deploy:
