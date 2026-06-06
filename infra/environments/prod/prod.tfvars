@@ -73,5 +73,5 @@ db_deletion_protection          = false # set true for real prod
 db_skip_final_snapshot          = true  # set false for real prod
 
 ##################################################### ACM AND CDN Variables
-domain_name     = "app.example.com"
-route53_zone_id = "Z0123456789ABC"
+domain_name     = "tryweblytic.com"
+route53_zone_id = "Z02362342ZQ56SR8N24GK"
