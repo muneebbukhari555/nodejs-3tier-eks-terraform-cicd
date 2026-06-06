@@ -248,3 +248,11 @@ variable "route53_zone_id" {
   type    = string
   default = ""
 }
+
+##################################################### ClloudFront CDN Variables
+
+variable "web_alb_dns_name" {
+  type        = string
+  default     = ""
+  description = "Set on the second apply, after the Ingress provisions the ALB"
+}

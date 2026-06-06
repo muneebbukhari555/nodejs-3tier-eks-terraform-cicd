@@ -77,5 +77,6 @@ db_deletion_protection          = false # set true for real prod
 db_skip_final_snapshot          = true  # set false for real prod
 
 ##################################################### ACM AND CDN Variables
-domain_name     = "tryweblytic.com"
-route53_zone_id = "Z02362342ZQ56SR8N24GK"
+domain_name      = "tryweblytic.com"
+route53_zone_id  = "Z02362342ZQ56SR8N24GK"
+web_alb_dns_name = "node3tier-prod-ingress-1724904820.us-east-2.elb.amazonaws.com"
