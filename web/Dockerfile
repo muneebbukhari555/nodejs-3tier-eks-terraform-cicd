@@ -1,11 +1,10 @@
-######### Dockerfile for Node.js Express app #########
-FROM node:26.3-alpine AS deps
+# Stage 1 — install production dependencies in isolation.
+FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-# Stage 2: minimal runtime image. Only the app + prod node_modules.
-FROM node:26.3-alpine AS runtime
+FROM node:22-alpine AS runtime
 ENV NODE_ENV=production \
     PORT=3000
 WORKDIR /app
@@ -13,10 +12,16 @@ WORKDIR /app
 RUN apk add --no-cache tini
 
 COPY --chown=node:node --from=deps /app/node_modules ./node_modules
+
 COPY --chown=node:node . .
 
 USER node
 EXPOSE 3000
+
+# Health check — GET / renders the Jade template; a 200 confirms the web app
+# and its upstream API_HOST call both succeeded.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:${PORT}/ > /dev/null || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "./bin/www"]
