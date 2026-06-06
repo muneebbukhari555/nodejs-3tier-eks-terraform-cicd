@@ -1,4 +1,4 @@
-########### Build stage: install dependencies and build the app
+###### Dockerfile for Node.js Express app #########
 FROM node:26.3-alpine AS deps
 WORKDIR /app
 COPY package*.json ./

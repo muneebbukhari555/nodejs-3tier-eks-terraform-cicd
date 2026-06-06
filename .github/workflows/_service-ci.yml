@@ -20,33 +20,33 @@ env:
   NAMESPACE: ${{ vars.NAMESPACE }}
 
 jobs:
-  # quality:
-  #   name: Unit tests & SCA
-  #   runs-on: [self-hosted, linux, app]
-  #   steps:
-  #     - uses: actions/checkout@v5
+  quality:
+    name: Unit tests & SCA
+    runs-on: [self-hosted, linux, app]
+    steps:
+      - uses: actions/checkout@v5
       
-  #     - uses: ./.github/actions/node-quality
-  #       with:
-  #         working-directory: ${{ inputs.service }}
-  #         node-version: "26.3"
+      - uses: ./.github/actions/node-quality
+        with:
+          working-directory: ${{ inputs.service }}
+          node-version: "26.3"
 
-  # codeql:
-  #   name: CodeQL (SAST)
-  #   runs-on: [self-hosted, linux, app]
-  #   steps:
-  #     - uses: actions/checkout@v5
-  #     - uses: github/codeql-action/init@v4
-  #       with:
-  #         languages: javascript
-  #     - uses: github/codeql-action/analyze@v4
-  #       with:
-  #         category: "/language:javascript-${{ inputs.service }}"
+  codeql:
+    name: CodeQL (SAST)
+    runs-on: [self-hosted, linux, app]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-${{ inputs.service }}"
 
   # Build, scan, push — on BOTH dev and main.
   build-push:
     name: Build, scan & push (ECR)
-    # needs: [quality, codeql]
+    needs: [quality, codeql]
     runs-on: [self-hosted, linux, app]
     outputs:
       image_tag: ${{ steps.meta.outputs.image_tag }}
@@ -88,7 +88,7 @@ jobs:
   deploy:
     name: Deploy to EKS (gated)
     needs: build-push
-    # if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, linux, app]
     environment: prod
     concurrency:

@@ -34,6 +34,11 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+secretRef:
+  secretStore: aws-secrets-manager
+  secretName: node3tier-prodapi
+  refreshInterval: 5m
+  
 service:
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
@@ -82,16 +87,6 @@ resources:
   requests:
     cpu: 500m
     memory: 1024Mi
-
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /api
-    port: http
-readinessProbe:
-  httpGet:
-    path: /api
-    port: http
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
