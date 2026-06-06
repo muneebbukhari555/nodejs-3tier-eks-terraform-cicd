@@ -133,3 +133,15 @@ module "observability" {
     module.eks
   ]
 }
+
+# ACM Private CA for TLS certificates.
+module "acm" {
+  source      = "./terraform/modules/acm"
+  domain_name = var.domain_name
+  zone_id     = var.route53_zone_id
+  providers = {
+    aws            = aws
+    aws.cloudfront = aws.us_east_1
+  }
+  tags = local.common_tags
+}
