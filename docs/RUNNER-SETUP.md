@@ -34,7 +34,7 @@ The bootstrap created the param with a placeholder; set the real value:
 
 ```bash
 aws ssm put-parameter --region us-east-2 \
-  --name /node3tier/runner-registration-token \
+  --name /node3tier-prod/runner-registration-token \
   --type SecureString --overwrite \
   --value <YOUR_GITHUB_PAT>
 ```
@@ -68,7 +68,7 @@ docker buildx build --platform linux/amd64 -t "${REPO}:latest" --push ./runner
 Verify it's there:
 
 ```bash
-aws ecr list-images --region us-east-2 --repository-name node3tier/runner
+aws ecr list-images --region us-east-2 --repository-name node3tier-prod/runner
 ```
 
 ---
@@ -78,7 +78,7 @@ aws ecr list-images --region us-east-2 --repository-name node3tier/runner
 In `infra/terraform/bootstrap/terraform.tfvars`:
 
 ```hcl
-runner_image = "8397....dkr.ecr.us-east-2.amazonaws.com/node3tier/runner:latest"
+runner_image = "8397....dkr.ecr.us-east-2.amazonaws.com/node3tier-prod/runner:latest"
 ```
 
 ```bash
@@ -93,8 +93,8 @@ The already-running instances tried to pull a non-existent image. Replace them s
 userdata re-runs against the now-present image:
 
 ```bash
-aws autoscaling start-instance-refresh --region us-east-2 --auto-scaling-group-name node3tier-infra-runners
-aws autoscaling start-instance-refresh --region us-east-2 --auto-scaling-group-name node3tier-app-runners
+aws autoscaling start-instance-refresh --region us-east-2 --auto-scaling-group-name node3tier-prod-infra-runners
+aws autoscaling start-instance-refresh --region us-east-2 --auto-scaling-group-name node3tier-prod-app-runners
 ```
 
 ---
