@@ -65,7 +65,7 @@ module "peering" {
 
 # ClusterSecretStore backed by Secrets Manager.
 module "external_secrets" {
-  count                            = var.enable_k8s_resources ? 1 : 0
+  count             = var.enable_k8s_resources ? 1 : 0
   source            = "./terraform/modules/external-secrets"
   chart_version     = var.external_secrets_chart_version
   name              = local.name
