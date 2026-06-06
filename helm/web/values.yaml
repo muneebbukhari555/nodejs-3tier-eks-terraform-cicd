@@ -28,6 +28,11 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+  
+secretRef:
+  secretStore: aws-secrets-manager
+  secretName: node3tier-prodweb
+  refreshInterval: 5m
 
 service:
   type: ClusterIP

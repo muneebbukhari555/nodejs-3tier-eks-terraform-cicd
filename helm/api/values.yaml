@@ -34,6 +34,11 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+secretRef:
+  secretStore: aws-secrets-manager
+  secretName: node3tier-prodapi
+  refreshInterval: 5m
+  
 service:
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
