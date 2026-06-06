@@ -100,8 +100,7 @@ jobs:
         run: |
           helm upgrade --install ${{ inputs.service }} ./helm/${{ inputs.service }} \
             --namespace app \
-            --set image.registry="$(echo '${{ needs.build-push.outputs.image }}' | cut -d/ -f1)" \
-            --set image.repository="${ECR_NAMESPACE}/${{ inputs.service }}" \
+            --set image.repository="${{ needs.build-push.outputs.image }}" \
             --set image.tag="${{ needs.build-push.outputs.image_tag }}" \
             --wait --timeout 5m
           kubectl -n app rollout status deployment/${{ inputs.service }} --timeout=180s

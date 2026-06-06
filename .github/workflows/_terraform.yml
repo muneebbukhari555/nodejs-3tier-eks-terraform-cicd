@@ -3,9 +3,22 @@ name: Reusable Terraform
 on:
   workflow_call:
     inputs:
-      action: { description: "plan or apply", required: true, type: string }
-      environment: { description: "GitHub Environment (plan | prod)", required: true, type: string }
-      targets: { description: "Optional space-separated -target list", required: false, type: string, default: "" }
+      action: { 
+        description: "plan or apply", 
+        required: true, 
+        type: string 
+      }
+      environment: { 
+        description: "GitHub Environment (plan | prod)", 
+        required: true, 
+        type: string 
+      }
+      targets: { 
+        description: "Optional space-separated -target list", 
+        required: false, 
+        type: string, 
+        default: "" 
+      }
 
 permissions:
   contents: read
@@ -17,49 +30,114 @@ env:
   TF_IN_AUTOMATION: "true"
 
 jobs:
-  terraform:
-    name: terraform ${{ inputs.action }}
+  fmt:
+    name: Terraform FMT
     runs-on: [self-hosted, linux, infra]
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v5
+      - run: terraform fmt -check -recursive .
+  
+  validate:
+    name: Terraform Validate
+    runs-on: [self-hosted, linux, infra]
+    needs: fmt
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="bucket=${{ env.TF_STATE_S3_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_FILE_KEY }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+
+      - run: terraform validate
+  
+  plan:
+    name: Terraform Plan
+    if: inputs.action == 'plan'
+    runs-on: [self-hosted, linux, infra]
+    needs: validate
+    environment: ${{ inputs.environment }}
+
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build target args
+        id: tgt
+        run: |
+          ARGS=""
+          for t in ${{ inputs.targets }}; do
+            ARGS="$ARGS -target=$t"
+          done
+
+          echo "args=$ARGS" >> "$GITHUB_OUTPUT"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="bucket=${{ env.TF_STATE_S3_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_FILE_KEY }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -input=false \
+            -var-file=environments/prod/prod.tfvars \
+            ${{ steps.tgt.outputs.args }} \
+            -out=tfplan
+
+  apply:
+    name: Terraform Apply
+    if: inputs.action == 'apply'
+    runs-on: [self-hosted, linux, infra]
+    needs: validate
     environment: ${{ inputs.environment }}
     defaults:
       run:
         working-directory: infra
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Build -target args
+      - uses: actions/checkout@v5
+
+      - name: Build target args
         id: tgt
         run: |
           ARGS=""
-          for t in ${{ inputs.targets }}; do ARGS="$ARGS -target=$t"; done
+          for t in ${{ inputs.targets }}; do
+            ARGS="$ARGS -target=$t"
+          done
+
           echo "args=$ARGS" >> "$GITHUB_OUTPUT"
 
-      - name: Terraform FMT Check
-        run: terraform fmt -check -recursive .
-      
-      - name: Debug Backend
-        run: |
-          echo "AWS_REGION=${AWS_REGION}"
-          echo "TF_STATE_S3_BUCKET=${TF_STATE_S3_BUCKET}"
-          echo "TF_STATE_FILE_KEY=${TF_STATE_FILE_KEY}"
-      - name: Terraform init
+      - name: Terraform Init
         run: |
           terraform init \
-            -backend-config="region=${{env.AWS_REGION}}" \
-            -backend-config="bucket=${{env.TF_STATE_S3_BUCKET}}" \
-            -backend-config="key=${{env.TF_STATE_FILE_KEY}}" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="bucket=${{ env.TF_STATE_S3_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_FILE_KEY }}" \
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
-      - name: Terraform validate
-        run: terraform validate
-
-      - name: Plan
-        id: plan
-        if: inputs.action == 'plan'
-        run: terraform plan -input=false -var-file=environments/prod/prod.tfvars ${{ steps.tgt.outputs.args }} -out=tfplan
-
-      - name: Apply
-        if: inputs.action == 'apply'
-        run: terraform apply -input=false -auto-approve -var-file=environments/prod/prod.tfvars ${{ steps.tgt.outputs.args }}
+      - name: Terraform Apply
+        run: |
+          terraform apply \
+            -input=false \
+            -auto-approve \
+            -var-file=environments/prod/prod.tfvars \
+            ${{ steps.tgt.outputs.args }}
