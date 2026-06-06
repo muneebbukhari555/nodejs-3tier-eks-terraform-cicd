@@ -18,7 +18,7 @@ vpc_create_database_subnet_route_table = true
 vpc_enable_nat_gateway                 = true
 
 ##################################################### EKS Cluster Variables
-enable_k8s_resources = true # set true to create in-cluster add-ons and namespaces. Set false to skip (for faster iteration when only infra changes).
+enable_k8s_resources = false # set true to create in-cluster add-ons and namespaces. Set false to skip (for faster iteration when only infra changes).
 cluster_version      = "1.35"
 node_instance_types  = ["m7i-flex.large"]
 node_min_size        = 1
