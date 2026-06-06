@@ -1,4 +1,4 @@
-### Dockerfile for Node.js API application
+##### Dockerfile for Node.js API application
 FROM node:26.3-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
