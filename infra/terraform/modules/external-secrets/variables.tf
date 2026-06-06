@@ -26,7 +26,6 @@ variable "namespace" {
 
 variable "chart_version" {
   type        = string
-  default     = "0.10.7"
   description = <<-EOT
     Helm chart version for external-secrets.
     Check https://github.com/external-secrets/external-secrets/releases

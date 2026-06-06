@@ -108,7 +108,7 @@ resource "kubernetes_namespace_v1" "app_namespace" {
   ]
 }
 
-# Observability: CloudWatch Container Insights, CloudWatch Logs, and RDS Enhanced Monitoring.
+# RDS Database
 module "rds" {
   source                 = "./terraform/modules/rds"
   name                   = local.name

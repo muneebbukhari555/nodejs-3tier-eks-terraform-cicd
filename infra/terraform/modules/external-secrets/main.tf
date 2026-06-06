@@ -1,14 +1,3 @@
-# external-secrets-operator — IRSA + Helm + ClusterSecretStore
-#
-# Installs the External Secrets Operator via Helm and wires up an IRSA role
-# scoped to AWS Secrets Manager (and SSM Parameter Store) so the operator's
-# service account can pull secrets without static credentials.
-#
-# After apply, create ExternalSecret resources in any namespace to sync
-# AWS Secrets Manager entries into Kubernetes Secrets.
-
-# ── IAM policy ──────────────────────────────────────────────────────────────
-
 resource "aws_iam_policy" "external_secrets" {
   name        = "${var.name}-external-secrets"
   description = "Allow ESO to read Secrets Manager and SSM Parameter Store entries"
@@ -44,7 +33,7 @@ resource "aws_iam_policy" "external_secrets" {
   tags = var.tags
 }
 
-# ── IRSA role ────────────────────────────────────────────────────────────────
+# IRSA role
 
 module "external_secrets_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -68,9 +57,9 @@ module "external_secrets_irsa" {
   tags = var.tags
 }
 
-# ── Namespace ────────────────────────────────────────────────────────────────
+# Namespace
 
-resource "kubernetes_namespace" "external_secrets" {
+resource "kubernetes_namespace_v1" "external_secrets" {
   metadata {
     name   = var.namespace
     labels = { name = var.namespace }
@@ -83,12 +72,11 @@ resource "helm_release" "external_secrets" {
   name       = "external-secrets"
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
-  namespace  = kubernetes_namespace.external_secrets.metadata[0].name
-  version    = var.chart_version
+  # Use the plain string — Helm provider v3 deprecated resource references here.
+  namespace = var.namespace
+  version   = var.chart_version
 
-  # Helm provider v3 uses list syntax for `set`.
   set = [
-    # Annotate the controller SA so IRSA token projection works.
     {
       name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
       value = module.external_secrets_irsa.iam_role_arn
@@ -97,16 +85,13 @@ resource "helm_release" "external_secrets" {
     { name = "installCRDs", value = "true" },
   ]
 
-  depends_on = [kubernetes_namespace.external_secrets]
+  depends_on = [kubernetes_namespace_v1.external_secrets]
 }
 
-# ── ClusterSecretStore ───────────────────────────────────────────────────────
-# Cluster-wide store backed by AWS Secrets Manager.
-# The operator's own service account (annotated with the IRSA role above) is
-# used for authentication — no static keys required.
+#ClusterSecretStore 
 
-resource "kubernetes_manifest" "cluster_secret_store" {
-  manifest = {
+resource "kubectl_manifest" "cluster_secret_store" {
+  yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
     kind       = "ClusterSecretStore"
     metadata = {
@@ -121,14 +106,14 @@ resource "kubernetes_manifest" "cluster_secret_store" {
             jwt = {
               serviceAccountRef = {
                 name      = "external-secrets"
-                namespace = kubernetes_namespace.external_secrets.metadata[0].name
+                namespace = var.namespace
               }
             }
           }
         }
       }
     }
-  }
+  })
 
   # CRDs are installed by the Helm chart — must exist before this resource.
   depends_on = [helm_release.external_secrets]
