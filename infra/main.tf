@@ -76,6 +76,14 @@ module "external_secrets" {
   tags              = local.common_tags
 }
 
+
+module "app_secrets" {
+  source        = "./terraform/modules/app-secrets"
+  secret_prefix = var.secrets_prefix
+  tags          = local.common_tags
+}
+
+
 # In-cluster add-ons (Helm): AWS LB Controller, Cluster Autoscaler, metrics-server.
 module "addons" {
   count                            = var.enable_k8s_resources ? 1 : 0
