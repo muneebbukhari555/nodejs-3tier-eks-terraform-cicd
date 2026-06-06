@@ -66,7 +66,7 @@ resource "kubernetes_namespace_v1" "external_secrets" {
   }
 }
 
-# ── Helm release ─────────────────────────────────────────────────────────────
+# Helm release
 
 resource "helm_release" "external_secrets" {
   name       = "external-secrets"
