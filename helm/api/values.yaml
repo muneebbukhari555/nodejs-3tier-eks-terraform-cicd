@@ -41,7 +41,7 @@ service:
 
 ingress:
   enabled: true
-  className: "ingress-external"
+  className: "alb"
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: node3tier-prod-ingress
     alb.ingress.kubernetes.io/scheme: internet-facing

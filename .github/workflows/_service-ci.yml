@@ -14,9 +14,10 @@ permissions:
   security-events: write
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
   ECR_NAMESPACE: ${{ vars.ECR_NAMESPACE }}
   CLUSTER_NAME: ${{ vars.CLUSTER_NAME }}
+  NAMESPACE: ${{ vars.NAMESPACE }}
 
 jobs:
   # quality:
@@ -47,10 +48,8 @@ jobs:
     name: Build, scan & push (ECR)
     # needs: [quality, codeql]
     runs-on: [self-hosted, linux, app]
-    environment: prod
     outputs:
-      image: ${{ steps.ecr.outputs.image }}
-      image_tag: ${{ steps.ecr.outputs.image_tag }}
+      image_tag: ${{ steps.tag.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v5
 
@@ -72,19 +71,24 @@ jobs:
           severity: "LOW"
 
       - name: Tag the branch channel (dev or prod)
+        id: tag
         run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           CHANNEL=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          echo "image_tag=${{ github.sha }}-$CHANNEL" >> "$GITHUB_OUTPUT"
-          docker tag "${{ steps.ecr.outputs.image }}:${{ github.sha }}" "${{ steps.ecr.outputs.image }}:${{ github.sha }}-$CHANNEL"
-          docker push "${{ steps.ecr.outputs.image }}:${{ github.sha }}-$CHANNEL"
+          echo "image_tag=${SHORT_SHA}-$CHANNEL" >> "$GITHUB_OUTPUT"
+          docker tag "${{ steps.ecr.outputs.image }}:${SHORT_SHA}" "${{ steps.ecr.outputs.image }}:${SHORT_SHA}-$CHANNEL"
+          docker push "${{ steps.ecr.outputs.image }}:${SHORT_SHA}-$CHANNEL"
 
   # Deploy ONLY on main, behind the gated `prod` environment (manual approval).
   deploy:
     name: Deploy to EKS (gated)
     needs: build-push
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, linux, app]
     environment: prod
+    concurrency:
+      group: deploy-${{ inputs.service }}-prod
+      cancel-in-progress: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -92,16 +96,41 @@ jobs:
       - name: Helm lint
         run: |
           helm lint ./helm/${{ inputs.service }}
+      
+      - name: Helm Template Validation
+        run: |
+          helm template \
+            ${{ inputs.service }} \
+            ./helm/${{ inputs.service }} \
+            >/dev/null
 
       - name: Configure kubectl
         run: aws eks update-kubeconfig --region "$AWS_REGION" --name "$CLUSTER_NAME"
-        
-      - name: Helm rollout (zero-downtime)
+      
+      - name: Build Image URI
+        id: image
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "repository=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_NAMESPACE}/${{ inputs.service }}" \
+            >> "$GITHUB_OUTPUT"
+
+      - name: Debug Deployment Values
+        run: |
+          echo "Repository: ${{ steps.image.outputs.repository }}"
+          echo "Tag: ${{ needs.build-push.outputs.image_tag }}"
+              
+      - name: Helm Upgrade
         run: |
           helm upgrade --install ${{ inputs.service }} ./helm/${{ inputs.service }} \
-            --namespace app \
-            --set image.repository="${{ needs.build-push.outputs.image }}" \
+            --namespace ${{ vars.NAMESPACE }} \
+            --create-namespace \
+            --set image.repository="${{ steps.image.outputs.repository }}" \
             --set image.tag="${{ needs.build-push.outputs.image_tag }}" \
-            --set ingress.annotations.alb\.ingress\.kubernetes\.io/certificate-arn="${{ secrets.ACM_CERT_ARN }}" \
-            --wait --timeout 5m
-          kubectl -n app rollout status deployment/${{ inputs.service }} --timeout=180s
+            --set-string ingress.annotations.alb\\.ingress\\.kubernetes\\.io/certificate-arn="${{ secrets.ACM_CERT_ARN }}" \
+            --wait \
+            --timeout 5m
+      - name: Verify Rollout
+        run: |
+          kubectl -n ${{ vars.NAMESPACE }} rollout status \
+            deployment/${{ inputs.service }} \
+            --timeout=180s
