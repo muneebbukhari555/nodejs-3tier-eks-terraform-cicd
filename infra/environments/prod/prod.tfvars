@@ -71,3 +71,4 @@ db_backup_retention_days        = 1
 db_performance_insights_enabled = true
 db_deletion_protection          = false # set true for real prod
 db_skip_final_snapshot          = true  # set false for real prod
+
