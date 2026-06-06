@@ -15,11 +15,5 @@ terraform {
       version = "~> 3.2.0"
     }
   }
-  # backend "s3" {
-  #   bucket       = "node3tier-tf-state-839792743202"
-  #   key          = "prod/node3tier.tfstate"
-  #   region       = "us-east-2"
-  #   encrypt      = true
-  #   use_lockfile = true
-  # }
+  backend "s3" {}
 }
