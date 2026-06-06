@@ -78,7 +78,7 @@ jobs:
         run: |
           
           CHANNEL=${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-          docker tag "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }} \
+          docker tag "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}" \
           "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
           docker push "${{ steps.ecr.outputs.image }}:${{ steps.ecr.outputs.image_tag }}-$CHANNEL"
 
