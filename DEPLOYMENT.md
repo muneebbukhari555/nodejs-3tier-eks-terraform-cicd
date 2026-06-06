@@ -1,8 +1,8 @@
-# Deployment Runbook — 3-Tier Node.js Application on AWS EKS
+# Deployment Runbook: 3-Tier Node.js Application on AWS EKS Using Terraform and Self Hosted Runner
 
-**Region:** `us-east-2` · **Terraform:** ≥ 1.11 · **EKS:** 1.29
+**Region:** `us-east-2` · **Terraform:** ≥ 1.15 · **EKS:** 1.35
 
-Work through phases top to bottom. Each phase has a ✅ verify step — do not advance until it passes.
+Work through phases top to bottom. Each phase has a verify step — do not advance until it passes.
 
 ---
 
@@ -24,7 +24,9 @@ Work through phases top to bottom. Each phase has a ✅ verify step — do not a
 ---
 
 ## Architecture Overview
+<img src="docs/architecture.png" width="1500">
 
+---
 Everything is self-hosted, keyless, and private. Two ephemeral runner fleets in the management VPC drive all infrastructure and application changes; no GitHub-hosted runner ever touches AWS.
 
 ```
@@ -71,7 +73,7 @@ Everything is self-hosted, keyless, and private. Two ephemeral runner fleets in 
 | Requirement | Detail |
 |---|---|
 | AWS account + admin credentials | For the one-time local bootstrap only |
-| `terraform` ≥ 1.11 | Local machine |
+| `terraform` ≥ 1.15 | Local machine |
 | `aws` CLI | Local machine |
 | `docker` with buildx | For building the runner image |
 | GitHub PAT (classic, `repo` scope) | Runner self-registration token |
@@ -129,7 +131,7 @@ terraform init -migrate-state
 3. Create GitHub Environments: `prod` (required reviewer) and `plan` (no reviewer).
 4. Apply branch protection: `scripts/setup-branch-protection.sh <owner>/<repo>`.
 
-✅ **Verify:** `infra` and `app` runners appear as **Idle** under *Repo → Settings → Actions → Runners*.
+ **Verify:** `infra` and `app` runners appear as **Idle** under *Repo → Settings → Actions → Runners*.
 
 ---
 
@@ -160,7 +162,7 @@ terraform init
 terraform apply -var-file=environments/prod/prod.tfvars
 ```
 
-✅ **Verify:**
+ **Verify:**
 ```bash
 aws eks update-kubeconfig --region us-east-2 --name node3tier-eks
 kubectl get nodes                                        # 3 Ready across 3 AZs
@@ -198,7 +200,7 @@ aws secretsmanager put-secret-value \
 
 > The DB credentials secret (`node3tier/db-credentials`) is populated automatically by the `rds` module during Phase 1. Do not overwrite it.
 
-✅ **Verify:**
+ **Verify:**
 ```bash
 aws secretsmanager get-secret-value --secret-id node3tier/api \
   --region us-east-2 --query SecretString --output text
@@ -229,7 +231,7 @@ helm upgrade --install web ./helm/web -n app \
 
 ESO automatically syncs secrets from Secrets Manager into Kubernetes Secrets (`db-credentials`, `api-secrets`, `web-secrets`) in the `app` namespace. Pods mount these as environment variables via `envFrom`.
 
-✅ **Verify:**
+**Verify:**
 ```bash
 kubectl -n app get pods                      # web and api pods Running (3 each)
 kubectl -n app get externalsecret           # db-credentials, api-secrets, web-secrets: SecretSynced
