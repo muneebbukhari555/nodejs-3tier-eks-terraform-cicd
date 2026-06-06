@@ -25,7 +25,7 @@ terraform init
 terraform apply
 
 # Provide the runner registration token (GitHub App token or PAT, repo admin):
-aws ssm put-parameter --name /node3tier/runner-registration-token \
+aws ssm put-parameter --name /node3tier-prod/runner-registration-token \
   --type SecureString --overwrite --value <token>
 
 # Migrate this stack's own state into the bucket it just created:

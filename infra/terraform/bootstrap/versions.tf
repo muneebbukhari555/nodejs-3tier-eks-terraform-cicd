@@ -7,7 +7,7 @@ terraform {
 
 terraform {
   backend "s3" {
-    bucket       = "node3tier-tf-state-839792743202"
+    bucket       = "node3tier-prod-tf-state-839792743202"
     key          = "bootstrap/terraform.tfstate"
     region       = "us-east-2"
     encrypt      = true

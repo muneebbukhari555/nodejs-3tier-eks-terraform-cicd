@@ -26,8 +26,7 @@ variable "mgmt_azs" {
 }
 
 variable "runner_token_ssm_param" {
-  type    = string
-  default = "/node3tier/runner-registration-token"
+  type = string
 }
 variable "runner_image" {
   type        = string
