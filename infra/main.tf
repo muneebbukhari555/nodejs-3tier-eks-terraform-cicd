@@ -121,7 +121,7 @@ module "rds" {
 
 # Backups: AWS Backup plan for RDS instance.
 module "backups" {
-  source = "./terraform/modules/backups"
+  source               = "./terraform/modules/backups"
   name                 = local.name
   backup_resource_arns = [module.rds.db_instance_arn]
   tags                 = local.common_tags
@@ -156,9 +156,9 @@ module "acm" {
 
 # CloudFront CDN in front of the Web ALB.
 module "cdn" {
-  source = "./terraform/modules/cdn"
-  name         = local.name
-  alb_dns_name = var.web_alb_dns_name
+  source                 = "./terraform/modules/cdn"
+  name                   = local.name
+  alb_dns_name           = var.web_alb_dns_name
   viewer_certificate_arn = module.acm.cloudfront_certificate_arn
   aliases                = var.domain_name == "" ? [] : [var.domain_name]
   tags                   = local.common_tags
